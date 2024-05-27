@@ -1,0 +1,29 @@
+{
+  "name": "bank-sampah-management-system",
+  "version": "1.0.0",
+  "description": "aims to facilitate the management process of a waste bank, such as transaction recording, member management, etc. It is expected to assist administrators, especially my mother, in running and optimizing the operations of the waste bank more efficiently and in an organized manner",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bagassandih/bank-sampah-management-system.git"
+  },
+  "keywords": [
+    "bank-sampah"
+  ],
+  "author": "Bagas Arisandi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bagassandih/bank-sampah-management-system/issues"
+  },
+  "homepage": "https://github.com/bagassandih/bank-sampah-management-system#readme",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.0",
+    "path": "^0.12.7"
+  }
+}
