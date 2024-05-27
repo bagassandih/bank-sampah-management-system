@@ -3,6 +3,10 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+
+// Import routes
+const adminRoutes = require('./src/routes/admin.js');
 
 // initialize server and db
 const app = express();
@@ -11,8 +15,11 @@ const dbUrl = process.env.DB_URL;
 const dbName = process.env.DB_NAME;
 
 // Middleware for parsing body from request
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Endpoint
+app.use('/admin', adminRoutes);
 
 // Connect db
 mongoose.connect(dbUrl + dbName)
