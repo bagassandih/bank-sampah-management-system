@@ -6,6 +6,7 @@ const adminController = require('../controllers/admin');
 const router = express.Router();
 
 // Sub route / for customer
-router.get('/', adminController.auth, customerController.getCustomers);
+router.get('/', adminController.auth, customerController.getCustomer);
+router.delete('/', adminController.auth, customerController.deleteCustomer);
 
 module.exports = router;

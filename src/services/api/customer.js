@@ -2,7 +2,7 @@ require('dotenv').config();
 const customerModel = require('../../models/customer');
 const moment = require('moment');
 
-async function getDataCustomers(filter, sorting, pagination) {
+async function getDataCustomer(filter, sorting, pagination) {
     try {
         // initiate query 
         let queryFilter = {};
@@ -86,7 +86,30 @@ async function getDataCustomers(filter, sorting, pagination) {
     }
 };
 
+async function deleteDataCustomer(id) {
+    try {
+        let message = `'s has been deleted`;
+        let updateStatus = 'deleted';
+
+        const checkId = await customerModel.findOne({ _id: id });
+        if (!checkId) throw { status: 404, message: 'data not found' };
+
+        if (checkId.status === 'deleted') {
+            updateStatus = 'active'
+            message = `'s has been reactivated`;
+        };
+
+        await customerModel.findByIdAndUpdate(id, {
+            status: updateStatus
+        });
+
+        return checkId.full_name + message;
+    } catch (error) {
+        throw { status: error.status ?? 400, message: error.message };
+    }
+};
+
 module.exports = {
-    getDataCustomers,
-    deleteDataCustomers,
+    getDataCustomer,
+    deleteDataCustomer,
 };
