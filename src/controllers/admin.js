@@ -1,6 +1,5 @@
 require('dotenv').config();
 const services = require('../services/api/admin');
-const jwt = require('jsonwebtoken');
 
 async function loginController(req, res) {
     try {
