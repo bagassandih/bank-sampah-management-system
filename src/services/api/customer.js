@@ -65,6 +65,7 @@ async function getDataCustomer(filter, sorting, pagination) {
             queryFilter = filter;
         };
 
+        // handle sorting
         if (sorting && Object.keys(sorting).length > 0) {
             if (sorting.full_name) sorting['full_name'] = sorting.full_name;
             if (sorting.join_date) sorting['join_date'] = sorting.join_date;
@@ -74,13 +75,13 @@ async function getDataCustomer(filter, sorting, pagination) {
             querySorting = sorting;
         };
 
-        console.log(sorting)
         return await customerModel
             .find(queryFilter)
             .sort(querySorting)
             .skip(skip)
             .limit(limit)
             .lean();
+
     } catch (error) {
         throw { status: 400, message: error.message };
     }
@@ -88,31 +89,37 @@ async function getDataCustomer(filter, sorting, pagination) {
 
 async function createDataCustomer(input) {
     try {
+        // check input is exist or not
         if (!input || !input.length) throw { status: 400, message: 'need data input' };
 
+        // set for payload, key field is full_name for detect duplicate data
         const allInputNames = input.map(newData => {
             if (!newData.full_name) throw { status: 400, message: 'need data input' };
-            return newData.full_name
+            return newData.full_name;
         });
-        const foundData = await customerModel.find({ full_name: { $in: allInputNames } });
 
+        // check the duplicate data
+        const foundData = await customerModel.find({ full_name: { $in: allInputNames } });
         if (foundData && foundData.length) {
             let messageData = foundData.map(data => data.full_name).join(', ');
             throw { status: 422, message: 'duplicated data detected: ' + messageData };
         };
 
+        // execute for createing data
         await customerModel.create(input);
         return input.length + ' data has been created';
     } catch (error) {
         throw { status: error.status ?? 400, message: error.message };
-    }
+    };
 };
 
 async function deleteDataCustomer(id) {
     try {
+        // messages for response
         let message = `'s has been deleted`;
         let updateStatus = 'deleted';
 
+        // check for the current satus
         const checkId = await customerModel.findOne({ _id: id });
         if (!checkId) throw { status: 404, message: 'data not found' };
 
@@ -121,6 +128,7 @@ async function deleteDataCustomer(id) {
             message = `'s has been reactivated`;
         };
 
+        // execute soft delete
         await customerModel.findByIdAndUpdate(id, {
             status: updateStatus
         });
@@ -131,8 +139,28 @@ async function deleteDataCustomer(id) {
     }
 };
 
+async function updateDataCustomer(id, input) {
+    try {
+        // initiate message for response
+        let message = `'s has been updated`;
+        let objUpdate = {};
+
+        // check every field for update, to handle empty value
+        for (const eachInput in input) {
+            if (input[eachInput]) objUpdate[eachInput] = input[eachInput];
+        };
+
+        // execute update
+        const updatedData = await customerModel.findByIdAndUpdate(id, objUpdate, { new: true });
+        return updatedData.full_name + message;
+    } catch (error) {
+        throw { status: error.status ?? 400, message: error.message };
+    }
+};
+
 module.exports = {
     getDataCustomer,
     deleteDataCustomer,
-    createDataCustomer
+    createDataCustomer,
+    updateDataCustomer
 };

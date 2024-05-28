@@ -15,13 +15,35 @@ async function getCustomer(req, res) {
 async function createCustomer(req, res) {
     try {
         const { input } = req.body;
-        const dataCustomers = await services.createDataCustomer(input);
+
+        // handle empty value each field
+        const inputMap = input.map(eachData => {
+            let noEmptyValue = {};
+            for (const eachField in eachData) {
+                if (eachData[eachField]) noEmptyValue[eachField] = eachData[eachField];
+            }
+            return noEmptyValue;
+        });
+
+        // call the service with new parameter
+        const dataCustomers = await services.createDataCustomer(inputMap);
         res.status(200).json({ dataCustomers });
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message, data: error.data });
     }
-}
+};
+
+async function updateCustomer(req, res) {
+    try {
+        const { id, input } = req.body;
+        const dataCustomers = await services.updateDataCustomer(id, input);
+        res.status(200).json({ dataCustomers });
+    } catch (error) {
+        console.log(error);
+        res.status(error.status).json({ status: error.status, message: error.message, data: error.data });
+    }
+};
 
 async function deleteCustomer(req, res) {
     try {
@@ -37,5 +59,6 @@ async function deleteCustomer(req, res) {
 module.exports = {
     getCustomer,
     createCustomer,
+    updateCustomer,
     deleteCustomer
 };
