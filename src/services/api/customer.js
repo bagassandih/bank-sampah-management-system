@@ -34,15 +34,11 @@ async function getDataCustomers(filter) {
         });
 
         // handle filter createdAt
-        if (filter.createdAt) {
+        if (filter.join_date) {
 
             // handling iso date problem
-            const startDate = moment(filter.createdAt, 'DD/MM/YYYY').startOf('day'); // Mulai dari awal hari
-            const endDate = moment(filter.createdAt, 'DD/MM/YYYY').endOf('day'); // Berakhir pada akhir hari
-
-            // bulan
-            // const startDate = moment(inputMonthYear, 'MM/YYYY').startOf('month'); // Mulai dari awal bulan
-            // const endDate = moment(inputMonthYear, 'MM/YYYY').endOf('month'); // Berakhir pada akhir bulan
+            const startDate = moment(filter.join_date, 'MM/YYYY').startOf('month');
+            const endDate = moment(filter.join_date, 'MM/YYYY').endOf('month'); 
             
             // default operator
             let operator = { 
@@ -54,7 +50,7 @@ async function getDataCustomers(filter) {
                 if (filter.date_range === 'less_than') operator = { $lt: new Date(startDate) };
                 if (filter.date_range === 'more_than') operator = { $gt: new Date(endDate) };
             }
-            filter.createdAt = operator;
+            filter.join_date = operator;
         };
 
         // delete unecessary filter for query to mongoose

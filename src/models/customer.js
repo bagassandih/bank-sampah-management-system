@@ -11,8 +11,7 @@ const customerSchema = new mongoose.Schema({
     },
     phone_number: {
         type: String,
-        unique: true,
-        required: true
+        default: 'unknown'
     },
     balance: {
         withdrawals: {
@@ -28,9 +27,11 @@ const customerSchema = new mongoose.Schema({
         type: String,
         enum: ['active', 'deleted'],
         default: 'active'
+    },
+    join_date: {
+        type: Date, 
+        default: new Date()
     }
-}, {
-    timestamps: true
 });
 
 // from schema to model
