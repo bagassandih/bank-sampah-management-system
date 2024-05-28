@@ -16,11 +16,13 @@ const customerSchema = new mongoose.Schema({
     balance: {
         withdrawals: {
             type: Number,
-            min: [0, 'Amount must be at least 0']
+            min: [0, 'Amount must be at least 0'],
+            default: 0
         },
         deposits: {
             type: Number,
-            min: [0, 'Amount must be at least 0']
+            min: [0, 'Amount must be at least 0'],
+            default: 0
         }
     },
     status: {

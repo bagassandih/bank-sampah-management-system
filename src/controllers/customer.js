@@ -12,6 +12,17 @@ async function getCustomer(req, res) {
     }
 };
 
+async function createCustomer(req, res) {
+    try {
+        const { input } = req.body;
+        const dataCustomers = await services.createDataCustomer(input);
+        res.status(200).json({ dataCustomers });
+    } catch (error) {
+        console.log(error);
+        res.status(error.status).json({ status: error.status, message: error.message, data: error.data });
+    }
+}
+
 async function deleteCustomer(req, res) {
     try {
         const { id } = req.body;
@@ -25,5 +36,6 @@ async function deleteCustomer(req, res) {
 
 module.exports = {
     getCustomer,
+    createCustomer,
     deleteCustomer
 };

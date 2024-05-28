@@ -86,6 +86,28 @@ async function getDataCustomer(filter, sorting, pagination) {
     }
 };
 
+async function createDataCustomer(input) {
+    try {
+        if (!input || !input.length) throw { status: 400, message: 'need data input' };
+
+        const allInputNames = input.map(newData => {
+            if (!newData.full_name) throw { status: 400, message: 'need data input' };
+            return newData.full_name
+        });
+        const foundData = await customerModel.find({ full_name: { $in: allInputNames } });
+
+        if (foundData && foundData.length) {
+            let messageData = foundData.map(data => data.full_name).join(', ');
+            throw { status: 422, message: 'duplicated data detected: ' + messageData };
+        };
+
+        await customerModel.create(input);
+        return input.length + ' data has been created';
+    } catch (error) {
+        throw { status: error.status ?? 400, message: error.message };
+    }
+};
+
 async function deleteDataCustomer(id) {
     try {
         let message = `'s has been deleted`;
@@ -112,4 +134,5 @@ async function deleteDataCustomer(id) {
 module.exports = {
     getDataCustomer,
     deleteDataCustomer,
+    createDataCustomer
 };
