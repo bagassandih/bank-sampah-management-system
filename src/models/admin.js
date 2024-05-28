@@ -24,6 +24,8 @@ const userSchema = new mongoose.Schema({
         enum: ['active', 'deleted'],
         default: 'active'
     }
+}, {
+    timestamps: true
 });
 
 // from schema to model
