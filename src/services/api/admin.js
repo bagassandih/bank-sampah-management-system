@@ -54,7 +54,6 @@ async function verifyToken(token, type) {
     try {
         if (!type) throw { status: 400, message: 'need type of token' };
         const typeToken = type === 'access' ? process.env.SECRET_KEY_ACCESS : process.env.SECRET_KEY_REFRESH;
-        const checkToken =  jwt.verify(token, typeToken);
         return jwt.verify(token, typeToken);
     } catch(error) {
         throw { status: error.status ?? 403, message: error.message };

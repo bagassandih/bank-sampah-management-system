@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 // Import routes
-const adminRoutes = require('./src/routes/admin.js');
+const mainRoutes = require('./src/routes/main');
 
 // initialize server and db
 const app = express();
@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Endpoint
-app.use('/admin', adminRoutes);
+app.use('/', mainRoutes);
 
 // Connect db
 mongoose.connect(dbUrl + dbName)
