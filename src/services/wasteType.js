@@ -1,6 +1,53 @@
 require('dotenv').config();
 const wasteTypeModel = require('../models/wasteType');
 
+async function getDataWasteType(filter, sorting, pagination) {
+  try {
+    // initiate query 
+    let queryFilter = { };
+    let querySorting = { name: 'asc' };
+    const limit = pagination && pagination.limit || 10;
+    const skip = limit * (pagination && pagination.page || 0);
+
+    if (filter && Object.keys(filter).length > 0) {
+  
+      // handle filter full name
+      if (filter.name) {
+        filter.name = { $regex: filter.name, $options: 'i' };
+      };
+
+      // handle filter price
+      if (filter.price !== undefined) {
+        //default operator
+        let operator = filter.price;
+        // handle filter balance by range
+        if (filter.price_range) {
+          if (filter.price_range === 'less_than') operator = { $lt: filter.price };
+          if (filter.price_range === 'more_than') operator = { $gt: filter.price };
+        };
+        filter.price = operator;
+      };
+
+      // delete unecessary filter for query to mongoose
+      delete filter.price_range;
+      queryFilter = filter;
+    };
+
+    // handle sorting
+    querySorting = sorting;
+
+    return await wasteTypeModel
+      .find(queryFilter)
+      .sort(querySorting)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+  } catch (error) {
+    throw { status: 400, message: error.message };
+  }
+};
+
 async function createDataWasteType(input) {
   try {
     // check input is exist or not
@@ -78,5 +125,6 @@ async function deleteDataWasteType(id) {
 module.exports = {
   createDataWasteType,
   deleteDataWasteType,
-  updateDataWasteType
+  updateDataWasteType,
+  getDataWasteType
 };

@@ -11,9 +11,6 @@ async function getDataCustomer(filter, sorting, pagination) {
         const skip = limit * (pagination && pagination.page || 0);
 
         if (filter && Object.keys(filter).length > 0) {
-            if (filter.status) {
-                filter['status'] = filter.status;
-            };
 
             // handle filter full name
             if (filter.full_name) {
@@ -40,11 +37,9 @@ async function getDataCustomer(filter, sorting, pagination) {
 
             // handle filter createdAt
             if (filter.join_date) {
-
                 // handling iso date problem
                 const startDate = moment(filter.join_date, 'MM/YYYY').startOf('month');
                 const endDate = moment(filter.join_date, 'MM/YYYY').endOf('month');
-
                 // default operator
                 let operator = {
                     $gte: new Date(startDate),
@@ -67,11 +62,8 @@ async function getDataCustomer(filter, sorting, pagination) {
 
         // handle sorting
         if (sorting && Object.keys(sorting).length > 0) {
-            if (sorting.full_name) sorting['full_name'] = sorting.full_name;
-            if (sorting.join_date) sorting['join_date'] = sorting.join_date;
             if (sorting.deposits) sorting['balance.deposits'] = sorting.deposits;
             if (sorting.withdrawals) sorting['balance.withdrawals'] = sorting.withdrawals;
-            if (sorting.status) sorting['balance.status'] = sorting.status;
             querySorting = sorting;
         };
 
