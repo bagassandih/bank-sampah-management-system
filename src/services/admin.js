@@ -21,7 +21,7 @@ async function adminLogin(usernameOrEmail, password) {
     };
 
     // Generaste token and data admin
-    const accessToken = jwt.sign( payload, process.env.SECRET_KEY_ACCESS, { expiresIn: '30m' });
+    const accessToken = jwt.sign( payload, process.env.SECRET_KEY_ACCESS, { expiresIn: '30h' });
     const refreshToken = jwt.sign( payload, process.env.SECRET_KEY_REFRESH, { expiresIn: '8h' });
     const admin = { 
         _id: adminFound._id,

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const customerModel = require('../../models/customer');
+const customerModel = require('../models/customer');
 const moment = require('moment');
 
 async function getDataCustomer(filter, sorting, pagination) {

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const services = require('../services/api/admin');
+const services = require('../services/admin');
 
 async function loginController(req, res) {
     try {

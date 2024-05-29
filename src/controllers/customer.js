@@ -1,5 +1,5 @@
 require('dotenv').config();
-const services = require('../services/api/customer');
+const services = require('../services/customer');
 
 async function getCustomer(req, res) {
     try {
