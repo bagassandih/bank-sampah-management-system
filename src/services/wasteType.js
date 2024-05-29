@@ -8,25 +8,52 @@ async function createDataWasteType(input) {
 
     // set for payload, key field is full_name for detect duplicate data
     const allInputNames = input.map(newData => {
-        if (!newData.name) throw { status: 400, message: 'need data input' };
-        return newData.name;
+      if (!newData.name || !newData.price) throw { status: 400, message: 'need data input' };
+      return newData.name;
     });
 
     // check the duplicate data
-    const foundData = await wasteTypeModel.find({ full_name: { $in: allInputNames } });
+    const foundData = await wasteTypeModel.find({ name: { $in: allInputNames } });
     if (foundData && foundData.length) {
-        let messageData = foundData.map(data => data.full_name).join(', ');
-        throw { status: 422, message: 'duplicated data detected: ' + messageData };
+      let messageData = foundData.map(data => data.name).join(', ');
+      throw { status: 422, message: 'duplicated data detected: ' + messageData };
     };
 
     // execute for createing data
     await wasteTypeModel.create(input);
     return input.length + ' data has been created';
-} catch (error) {
+  } catch (error) {
     throw { status: error.status ?? 400, message: error.message };
+  };
 };
-}
+
+async function deleteDataWasteType(id) {
+  try {
+    // messages for response
+    let message = `'s has been deleted`;
+    let updateStatus = 'deleted';
+
+    // check for the current satus
+    const checkId = await wasteTypeModel.findOne({ _id: id });
+    if (!checkId) throw { status: 404, message: 'data not found' };
+
+    if (checkId.status === 'deleted') {
+      updateStatus = 'active'
+      message = `'s has been reactivated`;
+    };
+
+    // execute soft delete
+    await wasteTypeModel.findByIdAndUpdate(id, {
+      status: updateStatus
+    });
+
+    return checkId.name + message;
+  } catch (error) {
+    throw { status: error.status ?? 400, message: error.message };
+  }
+};
 
 module.exports = {
   createDataWasteType,
+  deleteDataWasteType
 };

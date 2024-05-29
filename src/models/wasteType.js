@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const wasteTypeSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     price: {
         type: Number,
-        default: [0, 'Amount must be at least 0']
+        default: [0, 'Amount must be at least 0'],
+        required: true
     },
     status: {
         type: String,
