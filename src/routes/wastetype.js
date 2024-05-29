@@ -1,14 +1,63 @@
-const express = require('express');
-const wasteTypeController = require('../controllers/wasteType');
-const adminController = require('../controllers/admin');
+require('dotenv').config();
+const services = require('../services/wasteType');
 
-// initiate router
-const router = express.Router();
+async function getWasteType(req, res) {
+  try {
+    const { filter, sorting, pagination } = req.body;
+    const dataWasteTypes = await services.getDataWasteType(filter, sorting, pagination);
+    res.status(200).json({ dataWasteTypes });
+  } catch (error) {
+    console.log(error);
+    res.status(error.status).json({ status: error.status, message: error.message });
+  }
+};
 
-// Sub route / for wastetype
-router.get('/', adminController.auth, wasteTypeController.getWasteType);
-router.post('/', adminController.auth, wasteTypeController.createWasteType);
-router.put('/', adminController.auth, wasteTypeController.updateWasteType);
-router.delete('/', adminController.auth, wasteTypeController.deleteWasteType);
 
-module.exports = router;
+async function createWasteType(req, res) {
+  try {
+    const { input } = req.body;
+    // handle empty value each field
+    const inputMap = input.map(eachData => {
+      let noEmptyValue = {};
+      for (const eachField in eachData) {
+        if (eachData[eachField]) noEmptyValue[eachField] = eachData[eachField];
+      }
+      return noEmptyValue;
+    });
+    // call the service with new parameter
+    const dataWasteTypes = await services.createDataWasteType(inputMap);
+    res.status(200).json({ dataWasteTypes });
+  } catch (error) {
+    console.log(error);
+    res.status(error.status).json({ status: error.status, message: error.message, data: error.data });
+  }
+};
+
+async function updateWasteType(req, res) {
+  try {
+    const { id, input } = req.body;
+    const dataWasteTypes = await services.updateDataWasteType(id, input);
+    res.status(200).json({ dataWasteTypes });
+  } catch (error) {
+    console.log(error);
+    res.status(error.status).json({ status: error.status, message: error.message, data: error.data });
+  }
+};
+
+async function deleteWasteType(req, res) {
+  try {
+    const { id } = req.body;
+    const deleteData = await services.deleteDataWasteType(id);
+    res.status(200).json({ deleteData });
+  } catch (error) {
+    console.log(error);
+    res.status(error.status).json({ status: error.status, message: error.message });
+  }
+};
+
+module.exports = {
+  getWasteType,
+  createWasteType,
+  updateWasteType,
+  deleteWasteType
+};
