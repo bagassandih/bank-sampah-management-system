@@ -115,6 +115,7 @@ async function createDataCustomer(input) {
 
 async function deleteDataCustomer(id) {
     try {
+        if (!id) throw { status: 400, message: 'need data input' };
         // messages for response
         let message = `'s has been deleted`;
         let updateStatus = 'deleted';
@@ -141,6 +142,8 @@ async function deleteDataCustomer(id) {
 
 async function updateDataCustomer(id, input) {
     try {
+        if (!id || !input || (input && !Object.keys(input).length)) throw { status: 400, message: 'need data input' };
+
         // initiate message for response
         let message = `'s has been updated`;
         let objUpdate = {};

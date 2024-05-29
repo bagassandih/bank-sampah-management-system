@@ -27,9 +27,31 @@ async function createDataWasteType(input) {
   };
 };
 
+async function updateDataWasteType(id, input) {
+  try {
+    if (!id || !input || (input && !Object.keys(input).length)) throw { status: 400, message: 'need data input' };
+
+    // initiate message for response
+    let message = `'s has been updated`;
+    let objUpdate = {};
+
+    // check every field for update, to handle empty value
+    for (const eachInput in input) {
+      if (input[eachInput]) objUpdate[eachInput] = input[eachInput];
+    };
+
+    // execute update
+    const updatedData = await wasteTypeModel.findByIdAndUpdate(id, objUpdate, { new: true });
+    return updatedData.name + message;
+  } catch (error) {
+    throw { status: error.status ?? 400, message: error.message };
+  }
+};
+
 async function deleteDataWasteType(id) {
   try {
     // messages for response
+    if (!id) throw { status: 400, message: 'need data input' };
     let message = `'s has been deleted`;
     let updateStatus = 'deleted';
 
@@ -55,5 +77,6 @@ async function deleteDataWasteType(id) {
 
 module.exports = {
   createDataWasteType,
-  deleteDataWasteType
+  deleteDataWasteType,
+  updateDataWasteType
 };

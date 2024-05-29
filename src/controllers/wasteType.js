@@ -15,16 +15,14 @@ async function getWasteType(req, res) {
 async function createWasteType(req, res) {
     try {
         const { input } = req.body;
-
         // handle empty value each field
         const inputMap = input.map(eachData => {
             let noEmptyValue = {};
             for (const eachField in eachData) {
                 if (eachData[eachField]) noEmptyValue[eachField] = eachData[eachField];
-            }
+            };
             return noEmptyValue;
         });
-
         // call the service with new parameter
         const dataWasteTypes = await services.createDataWasteType(inputMap);
         res.status(200).json({ dataWasteTypes });
