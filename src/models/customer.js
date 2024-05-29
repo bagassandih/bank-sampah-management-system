@@ -37,5 +37,5 @@ const customerSchema = new mongoose.Schema({
 });
 
 // from schema to model
-const Customer = mongoose.model('Customer', customerSchema);
+const Customer = mongoose.model('customer', customerSchema);
 module.exports = Customer; 
