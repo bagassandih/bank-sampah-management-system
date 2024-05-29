@@ -3,10 +3,10 @@ const router = express.Router();
 
 const adminRoutes = require('./admin');
 const customerRoutes = require('./customer');
-const wastetypeRoutes = require('./wastetype');
+const wasteTypeRoutes = require('./wasteType');
 
 router.use('/admin', adminRoutes);
 router.use('/customer', customerRoutes);
-router.use('/wastetype', wastetypeRoutes);
+router.use('/wasteType', wasteTypeRoutes);
 
 module.exports = router;

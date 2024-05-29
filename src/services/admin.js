@@ -1,6 +1,6 @@
 require('dotenv').config();
 const bcrypt = require('bcrypt');
-const adminModel = require('../../models/admin');
+const adminModel = require('../models/admin');
 const jwt = require('jsonwebtoken');
 
 async function adminLogin(usernameOrEmail, password) {
