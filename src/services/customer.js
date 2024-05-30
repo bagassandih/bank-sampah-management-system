@@ -18,7 +18,7 @@ async function getDataCustomer(filter, sorting, pagination) {
             };
 
             // handle filter balance
-            const fieldBalance = ['withdrawals', 'deposits'];
+            const fieldBalance = ['withdrawal', 'deposit'];
             fieldBalance.forEach(eachField => {
                 if (filter[eachField] !== undefined) {
 
@@ -38,8 +38,8 @@ async function getDataCustomer(filter, sorting, pagination) {
             // handle filter createdAt
             if (filter.join_date) {
                 // handling iso date problem
-                const startDate = moment(filter.join_date, 'MM/YYYY').startOf('month');
-                const endDate = moment(filter.join_date, 'MM/YYYY').endOf('month');
+                const startDate = moment(filter.join_date, 'YYYY-MM-DD').startOf('month');
+                const endDate = moment(filter.join_date, 'YYYY-MM-DD').endOf('month');
                 // default operator
                 let operator = {
                     $gte: new Date(startDate),

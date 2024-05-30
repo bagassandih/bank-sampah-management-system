@@ -14,12 +14,12 @@ const customerSchema = new mongoose.Schema({
         default: 'unknown'
     },
     balance: {
-        withdrawals: {
+        withdrawal: {
             type: Number,
             min: [0, 'Amount must be at least 0'],
             default: 0
         },
-        deposits: {
+        deposit: {
             type: Number,
             min: [0, 'Amount must be at least 0'],
             default: 0

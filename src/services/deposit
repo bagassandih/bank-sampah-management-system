@@ -1,0 +1,140 @@
+require('dotenv').config();
+const mongoose = require('mongoose');
+const depositModel = require('../models/deposit');
+const wasteTypeModel = require('../models/wasteType');
+const customerModel = require('../models/customer');
+
+// async function getDataWasteType(filter, sorting, pagination) {
+//   try {
+//     // initiate query 
+//     let queryFilter = { };
+//     let querySorting = { name: 'asc' };
+//     const limit = pagination && pagination.limit || 10;
+//     const skip = limit * (pagination && pagination.page || 0);
+
+//     if (filter && Object.keys(filter).length > 0) {
+
+//       // handle filter full name
+//       if (filter.name) {
+//         filter.name = { $regex: filter.name, $options: 'i' };
+//       };
+
+//       // handle filter price
+//       if (filter.price !== undefined) {
+//         //default operator
+//         let operator = filter.price;
+//         // handle filter balance by range
+//         if (filter.price_range) {
+//           if (filter.price_range === 'less_than') operator = { $lt: filter.price };
+//           if (filter.price_range === 'more_than') operator = { $gt: filter.price };
+//         };
+//         filter.price = operator;
+//       };
+
+//       // delete unecessary filter for query to mongoose
+//       delete filter.price_range;
+//       queryFilter = filter;
+//     };
+
+//     // handle sorting
+//     querySorting = sorting;
+
+//     return await wasteTypeModel
+//       .find(queryFilter)
+//       .sort(querySorting)
+//       .skip(skip)
+//       .limit(limit)
+//       .lean();
+
+//   } catch (error) {
+//     throw { status: 400, message: error.message };
+//   }
+// };
+
+async function createDataDeposit(input) {
+  try {
+
+    // check input is exist or not
+    if (!input || !input.length) throw { status: 400, message: 'need data input' };
+
+    // check all input of wasteType and customer is available or not
+    for (const eachInput of input) {
+      // getData wastetType and customer
+      const getDataWasteType = await wasteTypeModel.findById(eachInput.waste_type).lean();
+      const getDataCustomer = await customerModel.findById(eachInput.customer).lean();
+
+      if (!getDataWasteType || getDataWasteType.status === 'deleted') throw { status: 404, message: 'waste type not found' };
+      if (!getDataCustomer || getDataCustomer.status === 'deleted') throw { status: 404, message: 'customer not found' };
+
+      // calculate total amount for update customer balance
+      eachInput.amount = getDataWasteType.price * eachInput.weight;
+    };
+
+    // save the checked data to database
+    for (const eachInput of input) {
+      console.log(eachInput.amount)
+      // execute for createing data deposit and update balance user
+      await depositModel.create(eachInput);
+      await customerModel.findByIdAndUpdate(eachInput.customer, { $inc: { 'balance.deposit': eachInput.amount } });
+    };
+
+    return input.length + ' data has been created';
+  } catch (error) {
+    throw { status: error.status ?? 400, message: error.message };
+  }
+};
+
+// async function updateDataWasteType(id, input) {
+//   try {
+//     if (!id || !input || (input && !Object.keys(input).length)) throw { status: 400, message: 'need data input' };
+
+//     // initiate message for response
+//     let message = `'s has been updated`;
+//     let objUpdate = {};
+
+//     // check every field for update, to handle empty value
+//     for (const eachInput in input) {
+//       if (input[eachInput]) objUpdate[eachInput] = input[eachInput];
+//     };
+
+//     // execute update
+//     const updatedData = await wasteTypeModel.findByIdAndUpdate(id, objUpdate, { new: true });
+//     return updatedData.name + message;
+//   } catch (error) {
+//     throw { status: error.status ?? 400, message: error.message };
+//   }
+// };
+
+// async function deleteDataWasteType(id) {
+//   try {
+//     // messages for response
+//     if (!id) throw { status: 400, message: 'need data input' };
+//     let message = `'s has been deleted`;
+//     let updateStatus = 'deleted';
+
+//     // check for the current satus
+//     const checkId = await wasteTypeModel.findOne({ _id: id });
+//     if (!checkId) throw { status: 404, message: 'data not found' };
+
+//     if (checkId.status === 'deleted') {
+//       updateStatus = 'active'
+//       message = `'s has been reactivated`;
+//     };
+
+//     // execute soft delete
+//     await wasteTypeModel.findByIdAndUpdate(id, {
+//       status: updateStatus
+//     });
+
+//     return checkId.name + message;
+//   } catch (error) {
+//     throw { status: error.status ?? 400, message: error.message };
+//   }
+// };
+
+module.exports = {
+  createDataDeposit,
+  // deleteDataWasteType,
+  // updateDataWasteType,
+  // getDataWasteType
+};

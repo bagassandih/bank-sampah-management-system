@@ -21,7 +21,7 @@ async function createCustomer(req, res) {
             let noEmptyValue = {};
             for (const eachField in eachData) {
                 if (eachData[eachField]) noEmptyValue[eachField] = eachData[eachField];
-            }
+            };
             return noEmptyValue;
         });
 
