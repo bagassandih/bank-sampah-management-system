@@ -8,6 +8,6 @@ const router = express.Router();
 // router.get('/', adminController.auth, depositController.getDeposit);
 router.post('/', adminController.auth, depositController.createDeposit);
 // router.put('/', adminController.auth, depositController.updateDeposit);
-// router.delete('/', adminController.auth, depositController.deleteDeposit);
+router.delete('/', adminController.auth, depositController.deleteDeposit);
 
 module.exports = router;

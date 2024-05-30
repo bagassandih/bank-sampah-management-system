@@ -72,7 +72,6 @@ async function createDataDeposit(input) {
 
     // save the checked data to database
     for (const eachInput of input) {
-      console.log(eachInput.amount)
       // execute for createing data deposit and update balance user
       await depositModel.create(eachInput);
       await customerModel.findByIdAndUpdate(eachInput.customer, { $inc: { 'balance.deposit': eachInput.amount } });
@@ -105,36 +104,37 @@ async function createDataDeposit(input) {
 //   }
 // };
 
-// async function deleteDataWasteType(id) {
-//   try {
-//     // messages for response
-//     if (!id) throw { status: 400, message: 'need data input' };
-//     let message = `'s has been deleted`;
-//     let updateStatus = 'deleted';
+async function deleteDataDeposit(id) {
+  try {
+    // messages for response
+    if (!id) throw { status: 400, message: 'need data input' };
 
-//     // check for the current satus
-//     const checkId = await wasteTypeModel.findOne({ _id: id });
-//     if (!checkId) throw { status: 404, message: 'data not found' };
+    // check for the current status, with customer too 
+    const getDataDeposit = await depositModel.findById(id);
+    const getDataCustomer = await customerModel.findById(getDataDeposit.customer);
+    if (!getDataDeposit) throw { status: 404, message: 'data not found' };
+    if (getDataDeposit && getDataDeposit.status === 'deleted') throw { status: 400, message: 'already deleted' };
+    if (!getDataCustomer) throw { status: 404, message: 'data customer not found' };
 
-//     if (checkId.status === 'deleted') {
-//       updateStatus = 'active'
-//       message = `'s has been reactivated`;
-//     };
+    // execute soft delete
+    await depositModel.findByIdAndUpdate(id, 
+      { status: 'deleted', }
+    );
 
-//     // execute soft delete
-//     await wasteTypeModel.findByIdAndUpdate(id, {
-//       status: updateStatus
-//     });
+    // update balance customer
+    await customerModel.findByIdAndUpdate(getDataCustomer._id, 
+      { $inc: { 'balance.deposit': -getDataDeposit.amount } 
+    });
 
-//     return checkId.name + message;
-//   } catch (error) {
-//     throw { status: error.status ?? 400, message: error.message };
-//   }
-// };
+    return `the data has been deleted`;
+  } catch (error) {
+    throw { status: error.status ?? 400, message: error.message };
+  }
+};
 
 module.exports = {
   createDataDeposit,
-  // deleteDataWasteType,
+  deleteDataDeposit,
   // updateDataWasteType,
   // getDataWasteType
 };

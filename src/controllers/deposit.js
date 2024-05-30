@@ -23,7 +23,7 @@ async function createDeposit(req, res) {
             };
             return noEmptyValue;
         });
-        
+
         // call the service with new parameter
         const dataDeposits = await services.createDataDeposit(inputMap);
         res.status(200).json({ dataDeposits });
@@ -44,20 +44,20 @@ async function createDeposit(req, res) {
 //     }
 // };
 
-// async function deleteDeposit(req, res) {
-//     try {
-//         const { id } = req.body;
-//         const deleteData = await services.deleteDataDeposit(id);
-//         res.status(200).json({ deleteData });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(error.status).json({ status: error.status, message: error.message });
-//     }
-// };
+async function deleteDeposit(req, res) {
+    try {
+        const { id } = req.body;
+        const deleteData = await services.deleteDataDeposit(id);
+        res.status(200).json({ deleteData });
+    } catch (error) {
+        console.log(error);
+        res.status(error.status).json({ status: error.status, message: error.message });
+    }
+};
 
 module.exports = {
     // getDeposit,
     createDeposit,
     // updateDeposit,
-    // deleteDeposit
+    deleteDeposit
 };
