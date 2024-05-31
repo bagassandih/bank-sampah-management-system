@@ -3,53 +3,162 @@ const mongoose = require('mongoose');
 const depositModel = require('../models/deposit');
 const wasteTypeModel = require('../models/wasteType');
 const customerModel = require('../models/customer');
+const moment = require('moment');
 
-// async function getDataWasteType(filter, sorting, pagination) {
-//   try {
-//     // initiate query 
-//     let queryFilter = { };
-//     let querySorting = { name: 'asc' };
-//     const limit = pagination && pagination.limit || 10;
-//     const skip = limit * (pagination && pagination.page || 0);
+async function getDataDeposit(filter, sorting, pagination) {
+  try {
+    // initiate query for aggregate
+    let querySorting = { deposit_date: 'asc' };
+    let queryAggregate = [];
+    const limit = pagination && pagination.limit || 10;
+    const skip = limit * (pagination && pagination.page || 0);
+    const refCollection = ['customer', 'waste_type'];
 
-//     if (filter && Object.keys(filter).length > 0) {
+    // for default, lookup the other collections
+    for (const eachCollection of refCollection) {
+      queryAggregate.push({
+        $lookup: {
+          from: eachCollection + 's', // collection name
+          localField: eachCollection,
+          foreignField: '_id',
+          as: eachCollection + '_populate'
+        }
+      }, {
+        $unwind: '$' + eachCollection + '_populate'
+      });
+    };
 
-//       // handle filter full name
-//       if (filter.name) {
-//         filter.name = { $regex: filter.name, $options: 'i' };
-//       };
+    // handle filter
+    if (filter && Object.keys(filter).length > 0) {
+      // handle filter that contains ref to another collection
+      for (const eachFilter in filter) {
+        if (eachFilter === 'customer') {
+          // for customer in deposit, only full name
+          queryAggregate.push(
+            {
+              $match:
+                { 'customer_populate.full_name': { $regex: filter[eachFilter].value, $options: 'i' } }
+            });
+        } else if (eachFilter === 'waste_type') {
+          // for waste type in deposit only fields name and price(with range_price for optional)
+          let queryMatch = { 
+            $match: {}
+          };
 
-//       // handle filter price
-//       if (filter.price !== undefined) {
-//         //default operator
-//         let operator = filter.price;
-//         // handle filter balance by range
-//         if (filter.price_range) {
-//           if (filter.price_range === 'less_than') operator = { $lt: filter.price };
-//           if (filter.price_range === 'more_than') operator = { $gt: filter.price };
-//         };
-//         filter.price = operator;
-//       };
+          let valueMatch = filter[eachFilter].value;
 
-//       // delete unecessary filter for query to mongoose
-//       delete filter.price_range;
-//       queryFilter = filter;
-//     };
+          if(filter[eachFilter].field === 'name') valueMatch = { $regex: filter[eachFilter].value, $options: 'i' };
+          if(filter[eachFilter].price_range === 'more_than') valueMatch = { $gt: filter[eachFilter].value };
+          if(filter[eachFilter].price_range === 'less_than') valueMatch = { $lt: filter[eachFilter].value };
+          
+          queryMatch.$match['waste_type_populate.' + filter[eachFilter].field] = valueMatch;
+          queryAggregate.push(queryMatch);
+        
+        } else {
+          // if filter not related to another collection, but ranged for date and numbers
+          if (eachFilter === 'weight') {
+            let queryMatch = { 
+              $match: {}
+            };
 
-//     // handle sorting
-//     querySorting = sorting;
+            queryMatch.$match['weight'] = filter['weight'];
+            if (filter.weight_range === 'more_than') queryMatch.$match['weight'] = { $gt: filter['weight'] };
+            if (filter.weight_range === 'less_than') queryMatch.$match['weight'] = { $lt: filter['weight'] };
+            queryAggregate.push(queryMatch);
+          };
+          
+          if (eachFilter === 'amount') {
+            let queryMatch = { 
+              $match: {}
+            };
 
-//     return await wasteTypeModel
-//       .find(queryFilter)
-//       .sort(querySorting)
-//       .skip(skip)
-//       .limit(limit)
-//       .lean();
+            queryMatch.$match['amount'] = filter['amount'];
+            if (filter.amount_range === 'more_than') queryMatch.$match['amount'] = { $gt: filter['amount'] };
+            if (filter.amount_range === 'less_than') queryMatch.$match['amount'] = { $lt: filter['amount'] };
+            queryAggregate.push(queryMatch);
+          };
 
-//   } catch (error) {
-//     throw { status: 400, message: error.message };
-//   }
-// };
+          if (eachFilter === 'deposit_date') {
+            let queryMatch = { 
+              $match: {}
+            };
+
+            const startDate = moment(filter.deposit_date, 'YYYY-MM-DD').startOf('month');
+            const endDate = moment(filter.deposit_date, 'YYYY-MM-DD').endOf('month');
+
+            let operator = {
+              $gte: new Date(startDate),
+              $lt: new Date(endDate)
+            };
+
+            queryMatch.$match['deposit_date'] = operator;
+            if (filter.date_range === 'more_than') queryMatch.$match['deposit_date'] = { $gt: new Date(endDate) };
+            if (filter.date_range === 'less_than') queryMatch.$match['deposit_date'] = { $lt: new Date(startDate) };
+            queryAggregate.push(queryMatch);
+          };
+         
+        }
+      };
+    };
+
+
+    // handle sorting
+    if (sorting && Object.keys(sorting).length > 0) {
+      // initiate for conver to lower case
+      let queryAddFields = {
+        $addFields: {
+          sortField: { $toLower: '' }
+        }
+      };
+
+      // initiate for query sorting
+      let querySort = { $sort: {} };
+
+      for (const eachSorting in sorting) {
+        let sortValue = sorting[eachSorting] === 'asc' ? 1 : -1;
+      
+        if (eachSorting === 'customer') {
+          // set value asc or desc
+          sortValue = sorting[eachSorting].value === 'asc' ? 1 : -1;
+          // set field to lower
+          queryAddFields.$addFields.sortField.$toLower = 'customer_populate.' + sorting[eachSorting].field;
+          // set field that want to sorting
+          querySort.$sort['customer_populate.' + sorting[eachSorting].field] = sortValue;
+        } else if (eachSorting === 'waste_type') {
+           // set value asc or desc
+          sortValue = sorting[eachSorting].value === 'asc' ? 1 : -1;
+          // set field to lower
+          queryAddFields.$addFields.sortField.$toLower = 'waste_type_populate.' + sorting[eachSorting].field;
+           // set field that want to sorting
+          querySort.$sort['waste_type_populate.' + sorting[eachSorting].field] = sortValue;
+        } else {
+          queryAddFields.$addFields.sortField.$toLower = eachSorting;
+          querySort.$sort[eachSorting] = sortValue;
+        };
+        // push to queryAggregate
+        queryAggregate.push(queryAddFields, querySort);
+      }
+    };
+
+    // dont display the old populate data
+    queryAggregate.push(
+      {
+        $set: { customer: '$customer_populate', waste_type: '$waste_type_populate' }
+      },
+      {
+        $project: { 'customer_populate': 0, 'waste_type_populate': 0 }
+      }
+    );
+   
+    return await depositModel
+      .aggregate(queryAggregate)
+      .skip(skip)
+      .limit(limit)
+   
+  } catch (error) {
+    throw { status: 400, message: error.message };
+  }
+};
 
 async function createDataDeposit(input) {
   try {
@@ -83,26 +192,6 @@ async function createDataDeposit(input) {
   }
 };
 
-// async function updateDataWasteType(id, input) {
-//   try {
-//     if (!id || !input || (input && !Object.keys(input).length)) throw { status: 400, message: 'need data input' };
-
-//     // initiate message for response
-//     let message = `'s has been updated`;
-//     let objUpdate = {};
-
-//     // check every field for update, to handle empty value
-//     for (const eachInput in input) {
-//       if (input[eachInput]) objUpdate[eachInput] = input[eachInput];
-//     };
-
-//     // execute update
-//     const updatedData = await wasteTypeModel.findByIdAndUpdate(id, objUpdate, { new: true });
-//     return updatedData.name + message;
-//   } catch (error) {
-//     throw { status: error.status ?? 400, message: error.message };
-//   }
-// };
 
 async function deleteDataDeposit(id) {
   try {
@@ -117,14 +206,15 @@ async function deleteDataDeposit(id) {
     if (!getDataCustomer) throw { status: 404, message: 'data customer not found' };
 
     // execute soft delete
-    await depositModel.findByIdAndUpdate(id, 
+    await depositModel.findByIdAndUpdate(id,
       { status: 'deleted', }
     );
 
     // update balance customer
-    await customerModel.findByIdAndUpdate(getDataCustomer._id, 
-      { $inc: { 'balance.deposit': -getDataDeposit.amount } 
-    });
+    await customerModel.findByIdAndUpdate(getDataCustomer._id,
+      {
+        $inc: { 'balance.deposit': -getDataDeposit.amount }
+      });
 
     return `the data has been deleted`;
   } catch (error) {
@@ -135,6 +225,5 @@ async function deleteDataDeposit(id) {
 module.exports = {
   createDataDeposit,
   deleteDataDeposit,
-  // updateDataWasteType,
-  // getDataWasteType
+  getDataDeposit
 };

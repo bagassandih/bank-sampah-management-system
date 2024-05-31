@@ -1,16 +1,16 @@
 require('dotenv').config();
 const services = require('../services/deposit');
 
-// async function getDeposit(req, res) {
-//     try {
-//         const { filter, sorting, pagination } = req.body;
-//         const dataDeposits = await services.getDataDeposit(filter, sorting, pagination);
-//         res.status(200).json({ dataDeposits });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(error.status).json({ status: error.status, message: error.message });
-//     }
-// };
+async function getDeposit(req, res) {
+    try {
+        const { filter, sorting, pagination } = req.body;
+        const dataDeposits = await services.getDataDeposit(filter, sorting, pagination);
+        res.status(200).json({ dataDeposits });
+    } catch (error) {
+        console.log(error);
+        res.status(error.status).json({ status: error.status, message: error.message });
+    }
+};
 
 async function createDeposit(req, res) {
     try {
@@ -33,17 +33,6 @@ async function createDeposit(req, res) {
     }
 };
 
-// async function updateDeposit(req, res) {
-//     try {
-//         const { id, input } = req.body;
-//         const dataDeposits = await services.updateDataDeposit(id, input);
-//         res.status(200).json({ dataDeposits });
-//     } catch (error) {
-//         console.log(error);
-//         res.status(error.status).json({ status: error.status, message: error.message, data: error.data });
-//     }
-// };
-
 async function deleteDeposit(req, res) {
     try {
         const { id } = req.body;
@@ -56,8 +45,7 @@ async function deleteDeposit(req, res) {
 };
 
 module.exports = {
-    // getDeposit,
+    getDeposit,
     createDeposit,
-    // updateDeposit,
     deleteDeposit
 };

@@ -19,5 +19,5 @@ const wasteTypeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // from schema to model
-const wasteType = mongoose.model('wasteType', wasteTypeSchema);
+const wasteType = mongoose.model('waste_type', wasteTypeSchema);
 module.exports = wasteType; 
