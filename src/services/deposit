@@ -41,23 +41,23 @@ async function getDataDeposit(filter, sorting, pagination) {
             });
         } else if (eachFilter === 'waste_type') {
           // for waste type in deposit only fields name and price(with range_price for optional)
-          let queryMatch = { 
+          let queryMatch = {
             $match: {}
           };
 
           let valueMatch = filter[eachFilter].value;
 
-          if(filter[eachFilter].field === 'name') valueMatch = { $regex: filter[eachFilter].value, $options: 'i' };
-          if(filter[eachFilter].price_range === 'more_than') valueMatch = { $gt: filter[eachFilter].value };
-          if(filter[eachFilter].price_range === 'less_than') valueMatch = { $lt: filter[eachFilter].value };
-          
+          if (filter[eachFilter].field === 'name') valueMatch = { $regex: filter[eachFilter].value, $options: 'i' };
+          if (filter[eachFilter].price_range === 'more_than') valueMatch = { $gt: filter[eachFilter].value };
+          if (filter[eachFilter].price_range === 'less_than') valueMatch = { $lt: filter[eachFilter].value };
+
           queryMatch.$match['waste_type_populate.' + filter[eachFilter].field] = valueMatch;
           queryAggregate.push(queryMatch);
-        
+
         } else {
           // if filter not related to another collection, but ranged for date and numbers
           if (eachFilter === 'weight') {
-            let queryMatch = { 
+            let queryMatch = {
               $match: {}
             };
 
@@ -66,9 +66,9 @@ async function getDataDeposit(filter, sorting, pagination) {
             if (filter.weight_range === 'less_than') queryMatch.$match['weight'] = { $lt: filter['weight'] };
             queryAggregate.push(queryMatch);
           };
-          
+
           if (eachFilter === 'amount') {
-            let queryMatch = { 
+            let queryMatch = {
               $match: {}
             };
 
@@ -79,7 +79,7 @@ async function getDataDeposit(filter, sorting, pagination) {
           };
 
           if (eachFilter === 'deposit_date') {
-            let queryMatch = { 
+            let queryMatch = {
               $match: {}
             };
 
@@ -96,7 +96,7 @@ async function getDataDeposit(filter, sorting, pagination) {
             if (filter.date_range === 'less_than') queryMatch.$match['deposit_date'] = { $lt: new Date(startDate) };
             queryAggregate.push(queryMatch);
           };
-         
+
         }
       };
     };
@@ -116,7 +116,7 @@ async function getDataDeposit(filter, sorting, pagination) {
 
       for (const eachSorting in sorting) {
         let sortValue = sorting[eachSorting] === 'asc' ? 1 : -1;
-      
+
         if (eachSorting === 'customer') {
           // set value asc or desc
           sortValue = sorting[eachSorting].value === 'asc' ? 1 : -1;
@@ -125,11 +125,11 @@ async function getDataDeposit(filter, sorting, pagination) {
           // set field that want to sorting
           querySort.$sort['customer_populate.' + sorting[eachSorting].field] = sortValue;
         } else if (eachSorting === 'waste_type') {
-           // set value asc or desc
+          // set value asc or desc
           sortValue = sorting[eachSorting].value === 'asc' ? 1 : -1;
           // set field to lower
           queryAddFields.$addFields.sortField.$toLower = 'waste_type_populate.' + sorting[eachSorting].field;
-           // set field that want to sorting
+          // set field that want to sorting
           querySort.$sort['waste_type_populate.' + sorting[eachSorting].field] = sortValue;
         } else {
           queryAddFields.$addFields.sortField.$toLower = eachSorting;
@@ -149,12 +149,12 @@ async function getDataDeposit(filter, sorting, pagination) {
         $project: { 'customer_populate': 0, 'waste_type_populate': 0 }
       }
     );
-   
+
     return await depositModel
       .aggregate(queryAggregate)
       .skip(skip)
       .limit(limit)
-   
+
   } catch (error) {
     throw { status: 400, message: error.message };
   }
