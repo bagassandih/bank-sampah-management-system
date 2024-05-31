@@ -8,7 +8,6 @@ const moment = require('moment');
 async function getDataDeposit(filter, sorting, pagination) {
   try {
     // initiate query for aggregate
-    let querySorting = { deposit_date: 'asc' };
     let queryAggregate = [];
     const limit = pagination && pagination.limit || 10;
     const skip = limit * (pagination && pagination.page || 0);
@@ -32,6 +31,7 @@ async function getDataDeposit(filter, sorting, pagination) {
     if (filter && Object.keys(filter).length > 0) {
       // handle filter that contains ref to another collection
       for (const eachFilter in filter) {
+        if (!filter[eachFilter]) throw { status: 400, message: 'filter ' + eachFilter + ' is empty' };
         if (eachFilter === 'customer') {
           // for customer in deposit, only full name
           queryAggregate.push(
@@ -115,6 +115,7 @@ async function getDataDeposit(filter, sorting, pagination) {
       let querySort = { $sort: {} };
 
       for (const eachSorting in sorting) {
+        if (!sorting[eachSorting]) throw { status: 400, message: 'sorting ' + eachSorting + ' is empty' };
         let sortValue = sorting[eachSorting] === 'asc' ? 1 : -1;
 
         if (eachSorting === 'customer') {
