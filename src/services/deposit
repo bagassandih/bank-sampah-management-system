@@ -45,7 +45,7 @@ async function getDataDeposit(filter, sorting, pagination) {
 
         // for collection waste_type only name and price(with range)
         let valueMatch = {};
-        if(filter.waste_type.name) {
+        if (filter.waste_type.name) {
           valueMatch = { $regex: filter.waste_type.name, $options: 'i' };
           queryMatch.$match['waste_type_populate.name'] = valueMatch;
         };
@@ -56,7 +56,7 @@ async function getDataDeposit(filter, sorting, pagination) {
           if (filter.waste_type.price_range === 'less_than') valueMatch = { $lt: filter.waste_type.price };
           queryMatch.$match['waste_type_populate.price'] = valueMatch;
         };
-       
+
         queryAggregate.push(queryMatch);
       } else {
         let queryMatch = {
