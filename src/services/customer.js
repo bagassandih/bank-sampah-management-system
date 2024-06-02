@@ -1,5 +1,6 @@
 require('dotenv').config();
 const customerModel = require('../models/customer');
+const depositModel = require('../models/deposit');
 const moment = require('moment');
 
 async function getDataCustomer(filter, sorting, pagination) {
@@ -153,9 +154,22 @@ async function updateDataCustomer(id, input) {
     }
 };
 
+async function getProfileCustomer(id) {
+    try {
+        if (!id) throw { status: 400, message: 'need input id' };
+        const customerData = await customerModel.find({ _id: id }).lean();
+        if (!customerData || !customerData.length) throw { status: 404, message: 'customer not found' };
+        const depositData = await depositModel.find({ customer: id }).sort({ deposit_date: -1 }).lean(); 
+        return { customerData: customerData[0], depositData: depositData };
+    } catch (error) {
+        throw { status: error.status ?? 400, message: error.message };
+    }
+}
+
 module.exports = {
     getDataCustomer,
     deleteDataCustomer,
     createDataCustomer,
-    updateDataCustomer
+    updateDataCustomer,
+    getProfileCustomer
 };

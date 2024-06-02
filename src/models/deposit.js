@@ -18,6 +18,11 @@ const depositSchema = new mongoose.Schema({
     ref: 'wasteType',
     required: true
   },
+  withdrawal_status: {
+    type: String,
+    enum: ['done', 'ready'],
+    default: 'ready'
+  },
   customer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'customer',
@@ -31,6 +36,10 @@ const depositSchema = new mongoose.Schema({
   deposit_date: {
     type: Date,
     default: new Date()
+  },
+  delete_reason: {
+    type: String,
+    default: ''
   }
 });
 

@@ -11,10 +11,19 @@ const withdrawalSchema = new mongoose.Schema({
     ref: 'customer',
     required: true
   },
+  deposit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'deposit',
+    required: true
+  },
   status: {
     type: String,
     enum: ['active', 'deleted'],
     default: 'active'
+  },
+  delete_reason: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true

@@ -13,6 +13,11 @@ const customerSchema = new mongoose.Schema({
         type: String,
         default: 'unknown'
     },
+    withdrawal_decision: {
+        type: String,
+        enum: ['yes', 'no'],
+        default: 'yes'
+    },
     balance: {
         withdrawal: {
             type: Number,

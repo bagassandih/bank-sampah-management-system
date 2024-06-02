@@ -56,9 +56,21 @@ async function deleteCustomer(req, res) {
     }
 };
 
+async function getProfileCustomer(req, res) {
+    try {
+        const { id } = req.params;
+        const dataProfileCustomer = await services.getProfileCustomer(id);
+        res.status(200).json({ dataProfileCustomer });
+    } catch (error) {
+        console.log(error);
+        res.status(error.status).json({ status: error.status, message: error.message });
+    }
+};
+
 module.exports = {
     getCustomer,
     createCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    getProfileCustomer
 };

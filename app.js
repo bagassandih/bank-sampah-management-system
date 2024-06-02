@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 // Import routes
 const mainRoutes = require('./src/routes/main');
@@ -17,7 +18,7 @@ const dbName = process.env.DB_NAME;
 // Middleware for parsing body from request
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(cors())
 // Endpoint
 app.use('/', mainRoutes);
 

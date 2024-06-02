@@ -37,7 +37,8 @@ async function getDataDeposit(filter, sorting, pagination) {
             $match:
               { 'customer_populate.full_name': { $regex: filter.customer.full_name, $options: 'i' } }
           });
-      } else if (filter.waste_type) {
+      } 
+      if (filter.waste_type) {
         // for waste type in deposit only fields name and price(with range_price for optional)
         let queryMatch = {
           $match: {}
@@ -58,42 +59,52 @@ async function getDataDeposit(filter, sorting, pagination) {
         };
 
         queryAggregate.push(queryMatch);
-      } else {
+      } 
+      // if filter not related to another collection, but ranged for date and numbers
+      if (filter.weight) {
         let queryMatch = {
           $match: {}
         };
-        // if filter not related to another collection, but ranged for date and numbers
-        if (filter.weight) {
-          queryMatch.$match.weight = filter.weight;
-          if (filter.weight_range === 'more_than') queryMatch.$match.weight = { $gt: filter.weight };
-          if (filter.weight_range === 'less_than') queryMatch.$match.weight = { $lt: filter.weight };
+        queryMatch.$match.weight = filter.weight;
+        if (filter.weight_range === 'more_than') queryMatch.$match.weight = { $gt: filter.weight };
+        if (filter.weight_range === 'less_than') queryMatch.$match.weight = { $lt: filter.weight };
+        queryAggregate.push(queryMatch);
+      };
+
+      if (filter.amount) {
+         let queryMatch = {
+          $match: {}
+        };
+        queryMatch.$match.amount = filter.amount;
+        if (filter.amount_range === 'more_than') queryMatch.$match.amount = { $gt: filter.amount };
+        if (filter.amount_range === 'less_than') queryMatch.$match.amount = { $lt: filter.amount };
+        queryAggregate.push(queryMatch);
+      };
+
+      if (filter.deposit_date) {
+         let queryMatch = {
+          $match: {}
+        };
+        // for deposit_date only for per month
+        const startDate = moment(filter.deposit_date, 'YYYY-MM-DD').startOf('month');
+        const endDate = moment(filter.deposit_date, 'YYYY-MM-DD').endOf('month');
+
+        let operator = {
+          $gte: new Date(startDate),
+          $lt: new Date(endDate)
         };
 
-        if (filter.amount) {
-          queryMatch.$match.amount = filter.amount;
-          if (filter.amount_range === 'more_than') queryMatch.$match.amount = { $gt: filter.amount };
-          if (filter.amount_range === 'less_than') queryMatch.$match.amount = { $lt: filter.amount };
+        queryMatch.$match.deposit_date = operator;
+        if (filter.date_range === 'more_than') queryMatch.$match.deposit_date = { $gt: new Date(endDate) };
+        if (filter.date_range === 'less_than') queryMatch.$match.deposit_date = { $lt: new Date(startDate) };
+        queryAggregate.push(queryMatch);
+      };
+
+      if (filter.status) {
+        let queryMatch = {
+          $match: {}
         };
-
-        if (filter.deposit_date) {
-          // for deposit_date only for per month
-          const startDate = moment(filter.deposit_date, 'YYYY-MM-DD').startOf('month');
-          const endDate = moment(filter.deposit_date, 'YYYY-MM-DD').endOf('month');
-
-          let operator = {
-            $gte: new Date(startDate),
-            $lt: new Date(endDate)
-          };
-
-          queryMatch.$match.deposit_date = operator;
-          if (filter.date_range === 'more_than') queryMatch.$match.deposit_date = { $gt: new Date(endDate) };
-          if (filter.date_range === 'less_than') queryMatch.$match.deposit_date = { $lt: new Date(startDate) };
-        };
-
-        if (filter.status) {
-          queryMatch.$match.status = filter.status;
-        };
-
+        queryMatch.$match.status = filter.status;
         queryAggregate.push(queryMatch);
       };
     };
@@ -117,18 +128,18 @@ async function getDataDeposit(filter, sorting, pagination) {
 
         if (eachSorting === 'customer') {
           // set value asc or desc
-          sortValue = sorting[eachSorting].value === 'asc' ? 1 : -1;
+          sortValue = sorting[eachSorting].full_name === 'asc' ? 1 : -1;
           // set field to lower
-          queryAddFields.$addFields.sortField.$toLower = 'customer_populate.' + sorting[eachSorting].field;
+          queryAddFields.$addFields.sortField.$toLower = 'customer_populate.full_name';
           // set field that want to sorting
-          querySort.$sort['customer_populate.' + sorting[eachSorting].field] = sortValue;
+          querySort.$sort['customer_populate.full_name'] = sortValue;
         } else if (eachSorting === 'waste_type') {
           // set value asc or desc
-          sortValue = sorting[eachSorting].value === 'asc' ? 1 : -1;
+          sortValue = sorting[eachSorting].name === 'asc' ? 1 : -1;
           // set field to lower
-          queryAddFields.$addFields.sortField.$toLower = 'waste_type_populate.' + sorting[eachSorting].field;
+          queryAddFields.$addFields.sortField.$toLower = 'waste_type_populate.name';
           // set field that want to sorting
-          querySort.$sort['waste_type_populate.' + sorting[eachSorting].field] = sortValue;
+          querySort.$sort['waste_type_populate.name'] = sortValue;
         } else {
           queryAddFields.$addFields.sortField.$toLower = eachSorting;
           querySort.$sort[eachSorting] = sortValue;
@@ -189,7 +200,6 @@ async function createDataDeposit(input) {
     throw { status: error.status ?? 400, message: error.message };
   }
 };
-
 
 async function deleteDataDeposit(id) {
   try {
