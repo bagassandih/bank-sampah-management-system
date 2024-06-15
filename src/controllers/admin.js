@@ -3,9 +3,9 @@ const services = require('../services/admin');
 
 async function loginController(req, res) {
     try {
-        const { username, password } = req.body;
+        let { username, password } = req.body;
         if (!username || !password) throw { status: 400, error: 'need username and password' };
-        
+        username = username.toLowerCase();
         const data = await services.adminLogin(username, password);
         res.status(200).json(data);
     } catch (error) {
@@ -13,6 +13,10 @@ async function loginController(req, res) {
         res.status(error.status).json({ status: error.status, message: error.message });
     }
 };
+
+async function loginPage(req, res) {
+    res.render('login')
+}
 
 async function refreshTokenController(req, res) {
     try {
@@ -44,5 +48,6 @@ async function auth(req, res, next) {
 module.exports = {
     auth,
     loginController,
-    refreshTokenController
+    refreshTokenController,
+    loginPage
 };
