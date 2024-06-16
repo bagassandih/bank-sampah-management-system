@@ -7,7 +7,7 @@ async function loginController(req, res) {
         if (!username || !password) throw { status: 400, error: 'need username and password' };
         username = username.toLowerCase();
         const data = await services.adminLogin(username, password);
-        res.status(200).json(data);
+        res.status(200).cookie('token', data, { httpOnly: true }).json(data);
     } catch (error) {
         console.error(error);
         res.status(error.status).json({ status: error.status, message: error.message });
@@ -16,7 +16,7 @@ async function loginController(req, res) {
 
 async function loginPage(req, res) {
     res.render('login')
-}
+};
 
 async function refreshTokenController(req, res) {
     try {
@@ -33,12 +33,16 @@ async function refreshTokenController(req, res) {
 
 async function auth(req, res, next) {
     try{
-        const token = req.headers['authorization'];
-        if (!token) throw { status: 401, message: 'unauthorized' };
-        
-        await services.verifyToken(token, 'access');
-        
-        await next();
+        // const token = req.headers['authorization'];
+        const token = req.cookies['token']?.accessToken ?? null;
+        // if (!token) throw { status: 401, message: 'unauthorized' };
+        if (token) {
+            req.user = await services.verifyToken(token, 'access');
+            return await next();
+        } else {
+            req.user = null;
+            return await next();
+        }
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message });

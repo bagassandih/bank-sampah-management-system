@@ -1,41 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="/css/login.css">
-    <%- include('./component/linkrel.ejs') %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <link rel="stylesheet" href="/css/login.css">
+  <%- include('./component/linkrel.ejs') %>
 </head>
+
 <body class="body-login">
-    <div class="container">
-        <div class="login-box">
-          <div>
-            <h1 class="font-pacifico">Welcome Back!</h1>
-          </div>
-          
-          <form action="/admin/login" method="POST">
-            <div>
-              <input type="text" placeholder="username or email" name="username" required> 
-            </div>
+  <div class="container">
+    <div class="login-box">
+      <div>
+        <h1 class="font-pacifico">Welcome Back!</h1>
+      </div>
 
-            <div>
-              <input type="password" placeholder="password" name="password" required> 
-            </div>
-
-            <div>
-              <button type="submit">Login</button>
-            </div>
-          </form>
-          
-          <div>
-            <a href="#">Forget Password?</a>
-          </div>
-
+      <form id="loginForm">
+        <!-- <form action="/login" method="POST"> -->
+        <div>
+          <label for="username"></label>
+          <input type="text" placeholder="username or email" id="username" name="username" required>
         </div>
-        <div class="footer">
-            <img src="/img/logo.png" class="logo" alt="Bank Sampah Logo">
+
+        <div>
+          <label for="password"></label>
+          <input type="password" placeholder="password" id="password" name="password" required>
         </div>
+
+        <div>
+          <button type="submit">Login</button>
+        </div>
+      </form>
+
+      <div>
+        <a href="#">Forget Password?</a>
+      </div>
+
     </div>
+    <div class="footer">
+      <img src="/img/logo.png" class="logo" alt="Bank Sampah Logo">
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="./js/login.js"></script>
 </body>
 </html>

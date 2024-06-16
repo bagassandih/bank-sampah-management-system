@@ -3,16 +3,6 @@ let content = document.querySelector(".content");
 let toggleBtn = document.querySelector(".toggle-btn");
 let header = document.querySelector("header");
 
-// Phone screen
-// if (screen.width > 768 ) {
-//   toggleBtn.remove();
-// }
-
-// // Tab screen
-// if (screen.width > 767 && screen.width < 1024) {
-//   toggleBtn.remove();
-// }
-
 // PC screen
 if (screen.width > 1024 ) {
   header.style.right = "0";
@@ -51,4 +41,18 @@ function toggleSidebar() {
   }
 
   isSidebarOpen = !isSidebarOpen;
-}
+};
+
+// // handle user admin
+// const adminName = JSON.parse(localStorage.getItem('user')) || false;
+// const elUserInfo = document.querySelector('.user-info > span');
+// // const elAdminName = document.querySelector('.user-info > span');
+// if (!adminName) elUserInfo.remove();
+// if (adminName.full_name) elUserInfo.innerText = adminName.full_name.toUpperCase();
+
+// handle link
+const titleName = document.querySelector('title').innerText;
+const linkSidebar = document.querySelectorAll('.menu > li > a > span');
+linkSidebar.forEach( link => {
+    if (link.innerText === titleName) link.className = 'active-link';
+});

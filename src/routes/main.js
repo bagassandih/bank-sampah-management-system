@@ -8,7 +8,7 @@ const depositRoutes = require('./deposit');
 const withdrawalRoutes = require('./withdrawal');
 const homeRoutes = require('./home');
 
-router.use('/admin', adminRoutes);
+router.use('/', adminRoutes);
 router.use('/customer', customerRoutes);
 router.use('/wasteType', wasteTypeRoutes);
 router.use('/deposit', depositRoutes);

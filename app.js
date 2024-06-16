@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 // Import routes
 const mainRoutes = require('./src/routes/main');
@@ -22,6 +23,9 @@ app.use(bodyParser.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, './src/views'));
 app.use(express.static(path.join(__dirname, './src/views')));
+
+// initiate cookie
+app.use(cookieParser());
 
 app.use('/', mainRoutes);
 
