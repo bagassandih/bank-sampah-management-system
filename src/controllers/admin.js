@@ -35,7 +35,6 @@ async function auth(req, res, next) {
     try{
         // const token = req.headers['authorization'];
         const token = req.cookies['token']?.accessToken ?? null;
-        // if (!token) throw { status: 401, message: 'unauthorized' };
         if (token) {
             req.user = await services.verifyToken(token, 'access');
             return await next();

@@ -195,6 +195,83 @@ header {
   color: white;
 }
 
+.counter-container {
+  display: flex;
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.counter-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 25px;
+}
+
+.counter-item > div > h2 {
+  font-size: 72px;
+}
+
+.counter-item > img {
+  width: 70px;
+  height: fit-content;
+  max-height: 125px;
+}
+
+.counter-item {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  max-height: 100px;
+}
+
+.counter-item > span {
+  margin: 0px 5px;
+}
+
+.counter-item > .number {
+  font-size: 72px;
+  font-weight: bold;
+}
+
+.counter-item > .notes {
+  font-size: 20px;
+  /* font-weight: bold; */
+}
+
+.counter-item > .number-deposit {
+  font-size: 50px;
+  font-weight: bold;
+  max-width: 170px;
+}
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  padding: 25px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.chart > .chart-container {
+  flex-direction: row;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin: 10px 20px;
+}
+
+.chart-container > div:nth-child(1) {
+  width: 90%;
+}
+
+.chart-container > div:nth-child(2) {
+  width: 45%;
+}
+
 @media only screen and (max-width: 1024px) {
   .sidebar {
     width: 150px;
