@@ -28,6 +28,20 @@
         }]
     };
 
+    const dataWasteType = {
+        labels: <%- JSON.stringify(listWasteTypeName) %>,
+        datasets: [{
+            label: 'Count Types',
+            data: <%- JSON.stringify(listWasteTypeCount) %>,
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.2)',
+            ],
+            borderColor: [
+                'rgb(54, 162, 235)'
+            ],
+            borderWidth: 1
+        }]
+    };
 
     // Configuration for the chart
     const configDeposit = {
@@ -59,9 +73,23 @@
         data: dataCustomer,
     };
 
+    const configWasteType = {
+        type: 'bar',
+        data: dataWasteType,
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        },
+    };
+
     // Render the chart
     const ctxDeposit = document.getElementById('lineChartDeposit').getContext('2d');
     const ctxCustomer = document.getElementById('lineChartCustomer').getContext('2d');
+    const ctxWasteType = document.getElementById('lineChartWasteType').getContext('2d');
     new Chart(ctxDeposit, configDeposit);
     new Chart(ctxCustomer, configCustomer);
+    new Chart(ctxWasteType, configWasteType);
     </script>

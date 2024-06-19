@@ -43,12 +43,14 @@ function toggleSidebar() {
   isSidebarOpen = !isSidebarOpen;
 };
 
-// // handle user admin
-// const adminName = JSON.parse(localStorage.getItem('user')) || false;
-// const elUserInfo = document.querySelector('.user-info > span');
-// // const elAdminName = document.querySelector('.user-info > span');
-// if (!adminName) elUserInfo.remove();
-// if (adminName.full_name) elUserInfo.innerText = adminName.full_name.toUpperCase();
+function scrolls(link, num) {
+  link = link.replace(/\s/g, '-');
+  document.querySelector('#scroll-' + link.toLowerCase())?.scrollIntoView({
+    behavior: 'smooth'
+  });
+  document.querySelectorAll('#sidebar > ul > li a > span').forEach(e => { e.removeAttribute('class') });
+  document.querySelector('#sidebar > ul > li:nth-child('+ num +') > a > span').className = 'active-link';
+}
 
 // handle link
 const titleName = document.querySelector('title').innerText;

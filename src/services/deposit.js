@@ -193,6 +193,7 @@ async function createDataDeposit(input) {
       // execute for createing data deposit and update balance user
       await depositModel.create(eachInput);
       await customerModel.findByIdAndUpdate(eachInput.customer, { $inc: { 'balance.deposit': eachInput.amount } });
+      await wasteTypeModel.findByIdAndUpdate(eachInput.waste_type, { $inc: { deposit_count: 1 } });
     };
 
     return input.length + ' data has been created';
@@ -216,6 +217,10 @@ async function deleteDataDeposit(id) {
     // execute soft delete
     await depositModel.findByIdAndUpdate(id,
       { status: 'deleted', }
+    );
+    
+    await wasteTypeModel.findByIdAndUpdate(eachInput.waste_type,
+      { $inc: { deposit_count: -1 } }
     );
 
     // update balance customer

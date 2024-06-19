@@ -3,13 +3,18 @@
     <img src="../img/logo.png" alt="Bank Sampah Logo">
   </div>
   <ul class="menu">
+    <% if (full_name) { %>
     <li><a href="#"><span>Home</span></a></li>
     <li><a href="#"><span>Waste Type</span></a></li>
-    <% if (full_name) { %>
-      <li><a href="#"><span>Customer</span></a></li>
-      <li><a href="#"><span>Deposit</span></a></li>
-      <li><a href="#"><span>Withdrawal</span></a></li>
-      <li><a href="#"><span>Logout</span></a></li>
+    <li><a href="#"><span>Customer</span></a></li>
+    <li><a href="#"><span>Deposit</span></a></li>
+    <li><a href="#"><span>Withdrawal</span></a></li>
+    <li><a href="#"><span>Logout</span></a></li>
+      <% } else { %>
+        <li><a href="#"><span onclick="scrolls(this.innerText, 1)">Home</span></a></li>
+        <li><a href="#"><span onclick="scrolls(this.innerText, 2)">Data Summary</span></a></li>
+        <li><a href="#"><span onclick="scrolls(this.innerText, 3)">Customer</span></a></li>
+        <li><a href="#"><span onclick="scrolls(this.innerText, 4)">Waste Type</span></a></li>
       <% } %>
   </ul>
 </nav>

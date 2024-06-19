@@ -17,7 +17,8 @@ async function getDataHome() {
     const endDate = moment(currentYear + '-12-31').endOf('day').toDate();
 
     const rawDataCustomer = await customerModel.find({ status: 'active' }).lean();
-    const rawDataWasteType = await wasteTypeModel.find({ status: 'active' }).lean();
+    const rawDataWasteType = await wasteTypeModel.find({ status: 'active' }).sort({ name: 1 }).lean();
+    const rawDataWasteTypeCounter = await wasteTypeModel.find({ status: 'active' }).sort({ deposit_count: -1 }).limit(5).lean();
     const rawDataDeposit = await depositModel.find({
       status: 'active', 
       deposit_date: {
@@ -59,8 +60,10 @@ async function getDataHome() {
     const listMonth = rawDataset.map(data => data.month);
     const listAmountDeposit = rawDataset.map(data => data.customers.reduce((acc, current) => acc + current.amount, 0));
     const listCustomer = rawDataset.map(data => data.customers.length);
-    
-    return { currentYear, countCustomer, totalDeposit, countWasteType, listMonth, listAmountDeposit, listCustomer };
+    const listWasteTypeName = rawDataWasteTypeCounter.map(data => data.name);
+    const listWasteTypeCount = rawDataWasteTypeCounter.map(data => data.deposit_count);
+
+    return { currentYear, countCustomer, totalDeposit, countWasteType, listMonth, listAmountDeposit, listCustomer, rawDataWasteType, listWasteTypeName, listWasteTypeCount };
   } catch (error) {
     throw { status: error.status ?? 400, message: error.message };
   }

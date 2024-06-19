@@ -14,7 +14,7 @@
             <main class="content">
                 <%- include('./component/header.ejs') %>
 
-                    <h1>About these activities</h1>
+                    <h1 id="scroll-home">About these activities</h1>
                     <section class="about">
                         <section class="about-container">
                             <p>These activities aim to recycle waste that still has economic value or can be processed
@@ -97,7 +97,7 @@
                         </section>
                     </section>
 
-                    <h1>Overview</h1>
+                    <h1 id="scroll-data-summary">Data Summary (<%= currentYear %>)</h1>
                     <section class="counter-container">
                         <div class="counter-box">
                             <div class="counter-item">
@@ -143,7 +143,7 @@
                         </div>
                     </section>
 
-                    <h1>Data Current Year (<%= currentYear %>)</h1>
+                    <h1 id="scroll-customer">Customer</h1>
                     <section class="chart">
                         <div class="chart-container">
                             <div>
@@ -154,14 +154,47 @@
                             </div>
                         </div>
                         <p>
-                            We can observe the participation trend of customers each month, 
-                            which is typically used to review customer engagement and the effectiveness of the Waste Bank program.
+                            We can observe the participation trend of customers each month,
+                            which is typically used to review customer engagement and the effectiveness of the Waste
+                            Bank program.
+                        </p>
+                    </section>
+
+                    <h1 id="scroll-waste-type">Waste Type</h1>
+                    <section class="waste-type">
+                        <section class="waste-type-container">
+                            <table class="waste-type-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% rawDataWasteType.forEach(function(wt) { %>
+                                        <tr>
+                                            <td>
+                                                <%= wt.name %>
+                                            </td>
+                                            <td>
+                                                <%= new Intl.NumberFormat('id-ID', { style: 'currency' , currency: 'IDR'}).format(wt.price) %>
+                                            </td>
+                                        </tr>
+                                        <% }); %>
+                                </tbody>
+                            </table>
+                        </section>
+                        <div>
+                            <canvas id="lineChartWasteType"></canvas>
+                        </div>
+                        <p>
+                            It can be used to analyze the most common types of waste generated based on each customer's place of residence, while still receiving benefits for making deposits.
                         </p>
                     </section>
             </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../views/js/sidebar.js"></script>
+    <script src="./js/sidebar.js"></script>
     <%- include('./component/home-script.ejs') %>
 </body>
 

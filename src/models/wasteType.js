@@ -11,6 +11,10 @@ const wasteTypeSchema = new mongoose.Schema({
         default: [0, 'Amount must be at least 0'],
         required: true
     },
+    deposit_count: {
+        type: Number,
+        default: [0, 'Amount must be at least 0'],
+    },
     status: {
         type: String,
         enum: ['active', 'deleted'],
