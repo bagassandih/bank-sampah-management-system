@@ -17,7 +17,7 @@ async function getDataHome() {
     const endDate = moment(currentYear + '-12-31').endOf('day').toDate();
 
     const rawDataCustomer = await customerModel.find({ status: 'active' }).lean();
-    const rawDataWasteType = await wasteTypeModel.find({ status: 'active' }).sort({ name: 1 }).lean();
+    const rawDataWasteType = await wasteTypeModel.find({ status: 'active' }).sort({ name: 1 }).limit(10).lean();
     const rawDataWasteTypeCounter = await wasteTypeModel.find({ status: 'active' }).sort({ deposit_count: -1 }).limit(5).lean();
     const rawDataDeposit = await depositModel.find({
       status: 'active', 

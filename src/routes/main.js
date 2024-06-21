@@ -13,6 +13,6 @@ router.use('/customer', customerRoutes);
 router.use('/wasteType', wasteTypeRoutes);
 router.use('/deposit', depositRoutes);
 router.use('/withdrawal', withdrawalRoutes);
-router.use('/home', homeRoutes);
+router.use('/*', homeRoutes);
 
 module.exports = router;

@@ -43,13 +43,14 @@ function toggleSidebar() {
   isSidebarOpen = !isSidebarOpen;
 };
 
-function scrolls(link, num) {
-  link = link.replace(/\s/g, '-');
-  document.querySelector('#scroll-' + link.toLowerCase())?.scrollIntoView({
-    behavior: 'smooth'
-  });
+function scrolls(linkText, num, event) {
+  event.preventDefault();
+  let link = linkText.replace(/\s/g, '-').toLowerCase();
   document.querySelectorAll('#sidebar > ul > li a > span').forEach(e => { e.removeAttribute('class') });
   document.querySelector('#sidebar > ul > li:nth-child('+ num +') > a > span').className = 'active-link';
+  document.querySelector('#scroll-' + link).scrollIntoView({
+      behavior: 'smooth'
+  });
 }
 
 // handle link
