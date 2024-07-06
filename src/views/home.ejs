@@ -97,13 +97,13 @@
                         </section>
                     </section>
 
-                    <h1 id="scroll-data-summary">Data Summary (<%= currentYear %>)</h1>
+                    <h1 id="scroll-data-summary">Data Summary (<%= dataHome.currentYear %>)</h1>
                     <section class="counter-container">
                         <div class="counter-box">
                             <div class="counter-item">
                                 <img src="./img/asset-7.png">
                                 <span class="number">
-                                    <%= countCustomer %>
+                                    <%= dataHome.countCustomer %>
                                 </span>
                                 <span class="notes">Total <br> Customers</span>
                             </div>
@@ -117,7 +117,7 @@
                                 <img src="./img/asset-6.png">
 
                                 <span class="number-deposit">
-                                    <%= totalDeposit %>
+                                    <%= dataHome.totalDeposit %>
                                 </span>
                                 <span class="notes"> Amount <br> Deposit</span>
 
@@ -132,7 +132,7 @@
                                 <img src="./img/asset-8.png">
 
                                 <span class="number">
-                                    <%= countWasteType %>
+                                    <%= dataHome.countWasteType %>
                                 </span>
                                 <span class="notes">Total <br> Waste Types</span>
 
@@ -180,7 +180,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% rawDataWasteType.forEach(function(wt) { %>
+                                    <% dataHome.rawDataWasteType.forEach(function(wt) { %>
                                         <tr>
                                             <td>
                                                 <%= wt.name %>

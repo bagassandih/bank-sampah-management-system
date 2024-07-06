@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin</title>
+    <link rel="stylesheet" href="../css/styles-backup.css">
+</head>
+
+<body>
+    <div class="container">
+        <%- include('./component/sidebar.ejs') %>
+            <main class="content">
+                <%- include('./component/header.ejs') %>
+
+                    <h1 id="scroll-data-summary">Dashboard</h1>
+                    <section class="counter-container">
+                        <div class="counter-box">
+                            <div class="counter-item">
+                                <img src="./img/asset-7.png">
+                                <span class="number">
+                                    <%= dataDashboard.countCustomer %>
+                                </span>
+                                <span class="notes">Total <br> Customers</span>
+                            </div>
+
+                        </div>
+
+                        <div class="counter-box">
+                            <div class="counter-item">
+                                <img src="./img/asset-6.png">
+
+                                <span class="number-deposit">
+                                    <%= dataDashboard.totalDeposit %>
+                                </span>
+                                <span class="notes">Total <br> Deposit</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="counter-box">
+                            <div class="counter-item">
+                                <img src="./img/asset-8.png">
+
+                                <span class="number">
+                                    <%= dataDashboard.countWasteType %>
+                                </span>
+                                <span class="notes">Total <br> Waste Types</span>
+
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <h1 id="scroll-contact-us">Last Data Created</h1>
+                    <section class="contact-us">
+                        <section class="contact-us-container dashboard">
+                            <div class="contact-us-item">
+                                <img src="./img/asset-7.png">
+                                <a target="_blank" href="#">
+                                    <table style="text-align: left;">
+                                        <tr>
+                                            <th>Customer</th>
+                                        </tr>
+                                        <% if (dataDashboard.lastDataCustomer) { %>
+                                            <tr>
+                                                <td>Name</td>
+                                                <td>: <%= dataDashboard.lastDataCustomer.full_name %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Phone</td>
+                                                <td>: <%= dataDashboard.lastDataCustomer.phone_number %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Date</td>
+                                                <td>: <%= dataDashboard.lastDataCustomer.join_date %>
+                                                </td>
+                                            </tr>
+                                    
+                                            <% } else { %>
+                                                <tr>
+                                                    <td style="width: auto;">
+                                                        There is no data.
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                    </table>
+                                </a>
+                            </div>
+                            <div class="contact-us-item">
+                                <img src="./img/asset-6.png">
+                                <a target="_blank" href="#">
+                                    <table style="text-align: left; max-width: 300px;">
+                                        <tr>
+                                            <th>Deposit</th>
+                                        </tr>
+                                        <% if (dataDashboard.lastDataDeposit) { %>
+                                            <tr>
+                                                <td >Amount</td>
+                                                <td>: Rp. <%= dataDashboard.lastDataDeposit.amount %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Weight</td>
+                                                <td>: <%= dataDashboard.lastDataDeposit.weight %> Kg
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Date</td>
+                                                <td>: <%= dataDashboard.lastDataDeposit.deposit_date %>
+                                                </td>
+                                            </tr>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td style="width: auto;">
+                                                        There is no data.
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                    </table>
+                                </a>
+                            </div>
+                            <div class="contact-us-item">
+                                <img src="./img/asset-8.png">
+                                <a target="_blank" href="#">
+                                    <table style="text-align: left;">
+                                        <tr>
+                                            <th colspan="2">Waste Type</th>
+                                            <th></th>
+                                        </tr>
+                                        <% if (dataDashboard.lastDataWasteType) { %>
+                                            <tr>
+                                                <td>Name</td>
+                                                <td>: <%= dataDashboard.lastDataWasteType.name %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Price</td>
+                                                <td>: Rp. <%= dataDashboard.lastDataWasteType.price %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Date</td>
+                                                <td>: <%= dataDashboard.lastDataWasteType.createdAt %>
+                                                </td>
+                                            </tr>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td style="width: auto;">
+                                                        There is no data.
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                    </table>
+                                </a>
+                            </div>
+                            <div class="contact-us-item">
+                                <img src="./img/asset-13.png">
+                                <a target="_blank" href="#">
+                                    <table style="text-align: left;">
+                                        <tr>
+                                            <th>Withdrawal</th>
+                                        </tr>
+                                        <% if (dataDashboard.lastDataWidthdrawal) { %>
+                                        <tr>
+                                            <td>Amount</td>
+                                            <td>: Rp. <%= dataDashboard.lastDataWidthdrawal.amount %>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Date</td>
+                                            <td>: <%= dataDashboard.lastDataWidthdrawal.createdAt %>
+                                            </td>
+                                        </tr>
+                                        <% } else { %>
+                                            <tr>
+                                                <td style="width: auto;">
+                                                    There is no data.
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </table>
+                                </a>
+                            </div>
+                        </section>
+                    </section>
+            </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./js/sidebar.js"></script>
+    <script src="./js/faq.js"></script>
+    <%- include('./component/home-chart.ejs') %>
+</body>
+
+</html>

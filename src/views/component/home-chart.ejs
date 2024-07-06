@@ -1,9 +1,9 @@
 <script>
     const dataDeposit = {
-        labels:  <%- JSON.stringify(listMonth) %>,
+        labels:  <%- JSON.stringify(dataHome.listMonth) %>,
         datasets: [{
             label: 'Total Deposit',
-            data: <%- JSON.stringify(listAmountDeposit) %>,
+            data: <%- JSON.stringify(dataHome.listAmountDeposit) %>,
             fill: true,
             borderColor: 'rgb(75, 192, 192)',
             backgroundColor: 'rgb(75, 192, 192, 0.2)',
@@ -12,10 +12,10 @@
     };
 
     const dataCustomer = {
-        labels: <%- JSON.stringify(listMonth) %>,
+        labels: <%- JSON.stringify(dataHome.listMonth) %>,
         datasets: [{
             label: 'Customers Active',
-            data: <%- JSON.stringify(listCustomer) %>,
+            data: <%- JSON.stringify(dataHome.listCustomer) %>,
             backgroundColor: [
                 'rgb(54, 162, 235, 0.8)',
                 'rgb(104, 162, 235, 0.8)',
@@ -29,10 +29,10 @@
     };
 
     const dataWasteType = {
-        labels: <%- JSON.stringify(listWasteTypeName) %>,
+        labels: <%- JSON.stringify(dataHome.listWasteTypeName) %>,
         datasets: [{
             label: 'Count Types',
-            data: <%- JSON.stringify(listWasteTypeCount) %>,
+            data: <%- JSON.stringify(dataHome.listWasteTypeCount) %>,
             backgroundColor: [
                 'rgba(54, 162, 235, 0.2)',
             ],

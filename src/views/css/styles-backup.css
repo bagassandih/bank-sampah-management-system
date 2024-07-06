@@ -428,6 +428,11 @@ header {
   max-width: 70px;
 }
 
+.dashboard {
+  column-count: 2; 
+  width: 100%;
+}
+
 @media only screen and (max-width: 1024px) {
   .sidebar {
     width: 150px;
@@ -812,5 +817,18 @@ header {
   
   .chart-container > .chart-customer {
     width: 100%;
+  }
+
+  .dashboard {
+    column-count: 1; 
+    width: 100%;
+  }
+
+  .dashboard table td:nth-child(1) {
+    width: 80px;
+  }
+
+  .dashboard table td:nth-child(2) {
+    max-width: 450px;
   }
 }

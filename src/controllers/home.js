@@ -8,7 +8,7 @@ async function getHomeData(req, res) {
           full_name: req.user?.full_name ?? null,
           ...dataHome
         };
-        res.render('home', data);
+        res.render(data.full_name ? 'dashboard' : 'home', data);
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message });
