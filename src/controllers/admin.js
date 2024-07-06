@@ -15,7 +15,12 @@ async function loginController(req, res) {
 };
 
 async function loginPage(req, res) {
-    res.render('login')
+    try {
+        if (req.cookies['token']?.accessToken) return res.redirect('/'); ;
+        res.render('login');
+    } catch( error ) {
+        res.status(error.status).json({ status: error.status, message: error.message });
+    }
 };
 
 async function refreshTokenController(req, res) {

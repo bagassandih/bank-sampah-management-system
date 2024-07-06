@@ -20,7 +20,7 @@ document.getElementById("loginForm").addEventListener("submit", function (event)
           title: result.message
         });
       } else {
-        window.location.href = '/home';
-      }
+        window.location.href = '/';
+      };
     })
 });

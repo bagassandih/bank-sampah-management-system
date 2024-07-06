@@ -59,3 +59,16 @@ const linkSidebar = document.querySelectorAll('.menu > li > a > span');
 linkSidebar.forEach( link => {
     if (link.innerText === titleName) link.className = 'active-link';
 });
+
+function logout() {
+  event.preventDefault();
+  fetch('/logout')
+    .then((e) => {
+      Swal.fire({
+        title: "Successfully Logout",
+        icon: "success"
+      }).then(res => {
+        if (res.isConfirmed) window.location.href = '/'
+      });
+    });
+};
