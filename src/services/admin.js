@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const adminModel = require('../models/admin');
 const jwt = require('jsonwebtoken');
 
-async function adminLogin(usernameOrEmail, password) {
+async function getToken(usernameOrEmail, password) {
     // check account
     const adminFound = await adminModel.findOne({ 
         $or: [{ email: usernameOrEmail }, { username: usernameOrEmail }]
@@ -21,7 +21,7 @@ async function adminLogin(usernameOrEmail, password) {
     };
 
     // Generaste token and data admin
-    const accessToken = jwt.sign( payload, process.env.SECRET_KEY_ACCESS, { expiresIn: '30h' });
+    const accessToken = jwt.sign( payload, process.env.SECRET_KEY_ACCESS, { expiresIn: '30m' });
     const refreshToken = jwt.sign( payload, process.env.SECRET_KEY_REFRESH, { expiresIn: '8h' });
     const admin = { 
         _id: adminFound._id,
@@ -35,12 +35,12 @@ async function adminLogin(usernameOrEmail, password) {
     };
 };
 
-async function adminRefresh(refreshToken) {
+async function refreshToken(refreshToken) {
     try{
         await verifyToken(refreshToken, 'refresh');
         const decodedToken = jwt.decode(refreshToken);
         const payload = {
-            _id: decodedToken.id,
+            id: decodedToken.id,
             full_name: decodedToken.full_name
         };
     
@@ -62,6 +62,6 @@ async function verifyToken(token, type) {
 
 module.exports = {
     verifyToken,
-    adminLogin,
-    adminRefresh
+    refreshToken,
+    getToken
 }

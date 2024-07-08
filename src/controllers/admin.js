@@ -6,8 +6,10 @@ async function loginController(req, res) {
         let { username, password } = req.body;
         if (!username || !password) throw { status: 400, error: 'need username and password' };
         username = username.toLowerCase();
-        const data = await services.adminLogin(username, password);
-        res.status(200).cookie('token', data, { httpOnly: true }).json(data);
+        const data = await services.getToken(username, password);
+        res.cookie('accessToken', data.accessToken, { httpOnly: true });
+        res.cookie('refreshToken', data.refreshToken, { httpOnly: true });
+        res.status(200).json(data);
     } catch (error) {
         console.error(error);
         res.status(error.status).json({ status: error.status, message: error.message });
@@ -39,7 +41,7 @@ async function refreshTokenController(req, res) {
 async function auth(req, res, next) {
     try{
         // const token = req.headers['authorization'];
-        const token = req.cookies['token']?.accessToken ?? null;
+        const token = req.cookies['accessToken'] ?? null;
         if (token) {
             req.user = await services.verifyToken(token, 'access');
             return await next();
@@ -49,6 +51,12 @@ async function auth(req, res, next) {
         }
     } catch (error) {
         console.log(error);
+        if (error.message === 'jwt expired') {
+            const newToken = await services.refreshToken(req.cookies['refreshToken'])
+            res.cookie('accessToken', newToken, { httpOnly: true });
+            req.user = await services.verifyToken(newToken, 'access');
+            return await next();
+        };
         res.status(error.status).json({ status: error.status, message: error.message });
     }
 };
