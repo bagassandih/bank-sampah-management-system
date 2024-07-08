@@ -13,7 +13,7 @@
         <%- include('./component/sidebar.ejs') %>
             <main class="content">
                 <%- include('./component/header.ejs') %>
-
+                <div onclick="toggleSidebarClose()">
                     <h1 id="scroll-home">About these activities</h1>
                     <section class="about">
                         <section class="about-container">
@@ -282,6 +282,7 @@
                             </p>
                         </div>
                     </section>
+                </div>
             </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

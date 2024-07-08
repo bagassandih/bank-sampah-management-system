@@ -32,7 +32,6 @@ function toggleSidebar() {
     toggleBtn.style.color = "white";
 
   } else {
-
     toggleBtn.style["background-color"] = "#E1E1E1";
     toggleBtn.style.color = "#0F1035";
 
@@ -42,6 +41,15 @@ function toggleSidebar() {
 
   isSidebarOpen = !isSidebarOpen;
 };
+
+function toggleSidebarClose() {
+  toggleBtn.style["background-color"] = "#E1E1E1";
+  toggleBtn.style.color = "#0F1035";
+  sidebar.style.transform = "translateX(-150%)";
+  toggleBtn.style.transform = "translateX(0px)";
+  isSidebarOpen = !isSidebarOpen;
+};
+
 
 function scrolls(linkText, num, event) {
   event.preventDefault();
