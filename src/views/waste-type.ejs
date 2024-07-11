@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Type</title>
+    <link rel="stylesheet" href="../css/styles-backup.css">
+</head>
+
+<body>
+    <div class="container">
+        <%- include('./component/sidebar.ejs') %>
+            <main class="content">
+                <%- include('./component/header.ejs') %>
+                <div onclick="toggleSidebarClose()">
+
+                    <h1>Waste Type</h1>
+                    <section class="waste-type">
+                        <section class="waste-type-container">
+                            
+                            <table class="waste-type-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>
+                                            <div onclick="filterSorting(this)" data-sort=0 name="name">
+                                                Name
+                                            </div>
+                                            <input type="text" placeholder="Search.." name="name" oninput="filterSorting(undefined, true)">
+                                        </th>
+                                        <th>
+                                            <div onclick="filterSorting(this)" data-sort=0 name="price">
+                                                Price
+                                            </div>
+                                            <div style="display: inline;">
+                                                <input type="text" placeholder="Search.." name="price" oninput="filterSorting(undefined, true)">
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div onclick="filterSorting(this)" data-sort=0 name="createdAt">
+                                                Date
+                                            </div>
+                                            <input type="date" placeholder="Search.." name="createdAt" oninput="filterSorting(undefined, true)">
+                                        </th>
+                                        <th>
+                                            <div onclick="filterSorting(this)" data-sort=0 name="deposit_count">
+                                                Deposit Count
+                                            </div>
+                                            <div style="display: inline;">
+                                                <input type="text" placeholder="Search.." name="deposit_count" oninput="filterSorting(undefined, true)">
+                                            </div>
+                                        </th>
+                                        <th>
+                                            <div onclick="filterSorting(this)" data-sort=0 name="status">
+                                                Status
+                                            </div>
+                                            <select id="filter-status" name="status" oninput="filterSorting(undefined, true)">
+                                                <option value="active">Active</option>
+                                                <option value="deleted">Deleted</option>
+                                            </select>
+                                        </th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-table-waste-type">
+                                  
+                                </tbody>
+                            </table>
+                            <div id="pagination">
+
+                            </div>
+                        </section>
+                        <div>
+                            <canvas id="lineChartWasteType"></canvas>
+                        </div>
+                        <p>
+                            It can be used to analyze the most common types of waste generated based on each customer's place of residence, while still receiving benefits for making deposits.
+                        </p>
+                    </section>
+
+                </div>
+            </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./js/sidebar.js"></script>
+    <script src="./js/waste-type.js"></script>
+    <script>
+        const tableElement = document.querySelector('#data-table-waste-type');
+        let timeout;
+
+        fetchDataTable();
+        function filterSorting(element) {
+            const times = element ? 0 : 1000;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                // Update the text and fetch data based on the new status
+                let bodyObj = { filter: {}, sorting: {} };
+                
+                if (element) {
+                    let status = parseInt(element.getAttribute('data-sort')) || 0;
+                    const originalText = element.innerText.replace(/[↓↑]/g, '');
+                    const getField = originalText.toLowerCase().replace(' ', '_').split(' ')[0];
+                    // Update status
+                    status = (status + 1) % 3;
+                    document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(el => {
+                        el.innerText = el.innerText.replace(/[↓↑]/g, '');
+                        if (el.innerText !== originalText) el.setAttribute('data-sort', 0);
+                    });
+                    
+                    // Reset the text and status attributes
+                    if (element.getAttribute('name') !== 'status') element.innerText = originalText;
+                    element.setAttribute('data-sort', status);
+                     if (status === 1) {
+                        element.innerText += '↑';
+                        bodyObj.sorting[element.getAttribute('name')] = 1;
+                    } else if (status === 2) {
+                        element.innerText += '↓';
+                        bodyObj.sorting[element.getAttribute('name')] = -1;
+                    };
+                   
+                };
+                
+                const getAllInputElement = document.querySelectorAll('input');
+                getAllInputElement.forEach(each => {
+                    if (each.value) bodyObj.filter[each.getAttribute('name')] = each.value; 
+                });
+
+                const getAllSelectElement = document.querySelectorAll('select');
+                getAllSelectElement.forEach(each => {
+                    if (each.value) bodyObj.filter[each.getAttribute('name')] = each.value; 
+                });
+                
+                fetchDataTable(bodyObj);
+            }, times);
+           
+        };
+
+        function fetchDataTable(bodyRequest){ 
+            const body = bodyRequest ?? { sorting: { name: 1 }};
+            tableElement.innerHTML = '';
+            const tableElementContainer = document.querySelector('.waste-type-table:nth-child(2) > thead');
+            tableElement.innerHTML += `
+            <tr id='loading'>
+                <td colspan='7' style='text-align: center;'>
+                    <img src='https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-05-37_512.gif' width='25%'/>
+                </td>
+            </tr>
+            `; 
+
+            fetch('http://localhost:3000/waste-type/table', {
+                method: 'POST',  // Change to POST
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then( res => res.json())
+            .then(res => {
+                const dataTable = res.result.data;
+                tableElement.querySelector('#loading').remove();
+                dataTable.forEach((element, index) => {
+                    const nameConvert = element.name[0].toUpperCase() + element.name.slice(1);
+                    const statusConvert = element.status[0].toUpperCase() + element.status.slice(1);
+                    const priceConvert = new Intl.NumberFormat('id-ID', { style: 'currency' , currency: 'IDR'}).format(element.price);
+                    const parsedElement = JSON.stringify(element).replace(/"/g, "'");
+                    
+                    let newElement = '<tr>';
+                    newElement += `<td style="text-align: center;"> ${index+1}</td>`;
+                    newElement += `<td>${nameConvert}</td>`;
+                    newElement += `
+                    <td>
+                        ${priceConvert}
+                    </td>`;
+                    newElement += `<td>${element.createdAt}</td>`;
+                    newElement += `<td style="text-align: center;">${element.deposit_count ?? 0}</td>`;
+                    newElement += `<td style="text-align: center;">${statusConvert}</td>`;
+                    newElement += `
+                    <td style="text-align: center;">
+                        <img src="img/asset-15.png" onclick="alert('ok')"/>
+                        <img src="img/asset-14.png" onclick="alert('ok')"/>
+                        <img src="img/asset-16.png" onclick="getDetailWasteType(${parsedElement})"/>
+                    </td>`;
+                    
+                    newElement += '</tr>';
+                    tableElement.innerHTML += newElement;
+                });
+            });
+        };
+        
+    </script>
+</body>
+
+</html>

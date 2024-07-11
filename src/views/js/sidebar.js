@@ -43,11 +43,13 @@ function toggleSidebar() {
 };
 
 function toggleSidebarClose() {
-  toggleBtn.style["background-color"] = "#E1E1E1";
-  toggleBtn.style.color = "#0F1035";
-  sidebar.style.transform = "translateX(-150%)";
-  toggleBtn.style.transform = "translateX(0px)";
-  isSidebarOpen = !isSidebarOpen;
+  if (isSidebarOpen) {
+    toggleBtn.style["background-color"] = "#E1E1E1";
+    toggleBtn.style.color = "#0F1035";
+    sidebar.style.transform = "translateX(-150%)";
+    toggleBtn.style.transform = "translateX(0px)";
+    isSidebarOpen = !isSidebarOpen;
+  };
 };
 
 

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const wasteTypeModel = require('../models/wasteType');
+const moment = require('moment');
 
 async function getDataWasteType(filter, sorting, pagination) {
   try {
@@ -14,6 +15,18 @@ async function getDataWasteType(filter, sorting, pagination) {
       // handle filter full name
       if (filter.name) {
         filter.name = { $regex: filter.name, $options: 'i' };
+      };
+
+      if (filter.createdAt) {
+        const startDate = moment(filter.createdAt, 'YYYY-MM-DD').startOf('day');
+        const endDate = moment(filter.createdAt, 'YYYY-MM-DD').endOf('day');
+
+        let operator = {
+          $gte: new Date(startDate),
+          $lt: new Date(endDate)
+        };
+
+        filter.createdAt = operator;
       };
 
       // handle filter price
@@ -35,13 +48,17 @@ async function getDataWasteType(filter, sorting, pagination) {
 
     // handle sorting
     querySorting = sorting;
-
-    return await wasteTypeModel
+    const dataWasteTpe = await wasteTypeModel
       .find(queryFilter)
       .sort(querySorting)
       .skip(skip)
       .limit(limit)
       .lean();
+
+    return dataWasteTpe.map(data => ({
+      ...data,
+      createdAt: moment(data.createdAt).format('LL'),
+    }));
 
   } catch (error) {
     throw { status: 400, message: error.message };

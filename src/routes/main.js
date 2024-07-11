@@ -11,7 +11,7 @@ const logoutRoutes = require('./logout');
 
 router.use('/', adminRoutes);
 router.use('/customer', customerRoutes);
-router.use('/wasteType', wasteTypeRoutes);
+router.use('/waste-type', wasteTypeRoutes);
 router.use('/deposit', depositRoutes);
 router.use('/withdrawal', withdrawalRoutes);
 router.use('/logout', logoutRoutes);

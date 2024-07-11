@@ -6,7 +6,8 @@ const adminController = require('../controllers/admin');
 const router = express.Router();
 
 // Sub route / for WasteType
-router.get('/', adminController.auth, wasteTypeController.getWasteType);
+router.get('/', adminController.auth, wasteTypeController.wasteTypePage);
+router.post('/table', adminController.auth, wasteTypeController.getWasteType);
 router.post('/', adminController.auth, wasteTypeController.createWasteType);
 router.put('/', adminController.auth, wasteTypeController.updateWasteType);
 router.delete('/', adminController.auth, wasteTypeController.deleteWasteType);

@@ -42,13 +42,9 @@ async function auth(req, res, next) {
     try{
         // const token = req.headers['authorization'];
         const token = req.cookies['accessToken'] ?? null;
-        if (token) {
-            req.user = await services.verifyToken(token, 'access');
-            return await next();
-        } else {
-            req.user = null;
-            return await next();
-        }
+        if (!token) return res.redirect('/');
+        req.user = await services.verifyToken(token, 'access');
+        return await next();
     } catch (error) {
         console.log(error);
         if (error.message === 'jwt expired') {

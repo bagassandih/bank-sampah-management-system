@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="../css/styles-backup.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -15,13 +15,13 @@
             <main class="content">
                 <%- include('./component/header.ejs') %>
                     <div onclick="toggleSidebarClose()">
-                        <h1 id="scroll-data-summary">Dashboard</h1>
+                        <h1>Dashboard</h1>
                         <section class="counter-container">
                             <div class="counter-box">
                                 <div class="counter-item">
                                     <img src="./img/asset-7.png">
                                     <span class="number">
-                                        <%= dataDashboard.countCustomer %>
+                                        <%= data.dataDashboard.countCustomer %>
                                     </span>
                                     <span class="notes">Total <br> Customers</span>
                                 </div>
@@ -33,7 +33,7 @@
                                     <img src="./img/asset-6.png">
 
                                     <span class="number-deposit">
-                                        <%= dataDashboard.totalDeposit %>
+                                        <%= data.dataDashboard.totalDeposit %>
                                     </span>
                                     <span class="notes">Total <br> Deposit</span>
 
@@ -46,7 +46,7 @@
                                     <img src="./img/asset-8.png">
 
                                     <span class="number">
-                                        <%= dataDashboard.countWasteType %>
+                                        <%= data.dataDashboard.countWasteType %>
                                     </span>
                                     <span class="notes">Total <br> Waste Types</span>
 
@@ -55,7 +55,7 @@
                             </div>
                         </section>
 
-                        <h1 id="scroll-contact-us">Last Data Created</h1>
+                        <h1>Last Data Created</h1>
                         <section class="contact-us">
                             <section class="contact-us-container dashboard">
                                 <div class="contact-us-item">
@@ -65,20 +65,20 @@
                                             <tr>
                                                 <th>Customer</th>
                                             </tr>
-                                            <% if (dataDashboard.lastDataCustomer) { %>
+                                            <% if (data.dataDashboard.lastDataCustomer) { %>
                                                 <tr>
                                                     <td>Name</td>
-                                                    <td>: <%= dataDashboard.lastDataCustomer.full_name %>
+                                                    <td>: <%= data.dataDashboard.lastDataCustomer.full_name %>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Phone</td>
-                                                    <td>: <%= dataDashboard.lastDataCustomer.phone_number %>
+                                                    <td>: <%= data.dataDashboard.lastDataCustomer.phone_number %>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Date</td>
-                                                    <td>: <%= dataDashboard.lastDataCustomer.join_date %>
+                                                    <td>: <%= data.dataDashboard.lastDataCustomer.join_date %>
                                                     </td>
                                                 </tr>
                                         
@@ -99,20 +99,20 @@
                                             <tr>
                                                 <th>Deposit</th>
                                             </tr>
-                                            <% if (dataDashboard.lastDataDeposit) { %>
+                                            <% if (data.dataDashboard.lastDataDeposit) { %>
                                                 <tr>
                                                     <td >Amount</td>
-                                                    <td>: Rp. <%= dataDashboard.lastDataDeposit.amount %>
+                                                    <td>: Rp. <%= data.dataDashboard.lastDataDeposit.amount %>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Weight</td>
-                                                    <td>: <%= dataDashboard.lastDataDeposit.weight %> Kg
+                                                    <td>: <%= data.dataDashboard.lastDataDeposit.weight %> Kg
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Date</td>
-                                                    <td>: <%= dataDashboard.lastDataDeposit.deposit_date %>
+                                                    <td>: <%= data.dataDashboard.lastDataDeposit.deposit_date %>
                                                     </td>
                                                 </tr>
                                                 <% } else { %>
@@ -133,20 +133,20 @@
                                                 <th colspan="2">Waste Type</th>
                                                 <th></th>
                                             </tr>
-                                            <% if (dataDashboard.lastDataWasteType) { %>
+                                            <% if (data.dataDashboard.lastDataWasteType) { %>
                                                 <tr>
                                                     <td>Name</td>
-                                                    <td>: <%= dataDashboard.lastDataWasteType.name %>
+                                                    <td>: <%= data.dataDashboard.lastDataWasteType.name %>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Price</td>
-                                                    <td>: Rp. <%= dataDashboard.lastDataWasteType.price %>
+                                                    <td>: Rp. <%= data.dataDashboard.lastDataWasteType.price %>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Date</td>
-                                                    <td>: <%= dataDashboard.lastDataWasteType.createdAt %>
+                                                    <td>: <%= data.dataDashboard.lastDataWasteType.createdAt %>
                                                     </td>
                                                 </tr>
                                                 <% } else { %>
@@ -166,15 +166,15 @@
                                             <tr>
                                                 <th>Withdrawal</th>
                                             </tr>
-                                            <% if (dataDashboard.lastDataWidthdrawal) { %>
+                                            <% if (data.dataDashboard.lastDataWidthdrawal) { %>
                                             <tr>
                                                 <td>Amount</td>
-                                                <td>: Rp. <%= dataDashboard.lastDataWidthdrawal.amount %>
+                                                <td>: Rp. <%= data.dataDashboard.lastDataWidthdrawal.amount %>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>Date</td>
-                                                <td>: <%= dataDashboard.lastDataWidthdrawal.createdAt %>
+                                                <td>: <%= data.dataDashboard.lastDataWidthdrawal.createdAt %>
                                                 </td>
                                             </tr>
                                             <% } else { %>
