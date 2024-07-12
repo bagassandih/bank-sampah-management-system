@@ -91,50 +91,74 @@
         let timeout;
 
         fetchDataTable();
+        function updateSortingText(element, originalText, status) {
+            element.innerText = originalText;
+            if (status === 1) {
+                element.innerText += '↑';
+            } else if (status === 2) {
+                element.innerText += '↓';
+            }
+        }
+
+        function resetHeadersAndStatus(element, originalText) {
+            document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(el => {
+                el.innerText = el.innerText.replace(/[↓↑]/g, '');
+                if (el.innerText !== originalText) {
+                    el.setAttribute('data-sort', 0);
+                }
+            });
+        }
+
+        function collectSortingData() {
+            const sorting = {};
+            document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(header => {
+                const sortStatus = parseInt(header.getAttribute('data-sort'));
+                if (sortStatus > 0) {
+                    sorting[header.getAttribute('name')] = sortStatus === 1 ? 1 : -1;
+                }
+            });
+            return sorting;
+        };
+
+        function collectFilterData() {
+            const filter = {};
+            document.querySelectorAll('input, select').forEach(input => {
+                if (input.value) {
+                    filter[input.getAttribute('name')] = input.value;
+                }
+            });
+            return filter;
+        };
+
         function filterSorting(element) {
-            const times = element ? 0 : 1000;
+            const delay = element ? 0 : 1000;
             clearTimeout(timeout);
+
             timeout = setTimeout(() => {
-                // Update the text and fetch data based on the new status
-                let bodyObj = { filter: {}, sorting: {} };
-                
+                let sorting = {};
+                let filter = {};
+
                 if (element) {
                     let status = parseInt(element.getAttribute('data-sort')) || 0;
                     const originalText = element.innerText.replace(/[↓↑]/g, '');
-                    const getField = originalText.toLowerCase().replace(' ', '_').split(' ')[0];
+                    const fieldName = originalText.toLowerCase().replace(' ', '_').split(' ')[0];
+
                     // Update status
                     status = (status + 1) % 3;
-                    document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(el => {
-                        el.innerText = el.innerText.replace(/[↓↑]/g, '');
-                        if (el.innerText !== originalText) el.setAttribute('data-sort', 0);
-                    });
-                    
-                    // Reset the text and status attributes
-                    if (element.getAttribute('name') !== 'status') element.innerText = originalText;
+                    resetHeadersAndStatus(element, originalText);
+                    updateSortingText(element, originalText, status);
                     element.setAttribute('data-sort', status);
-                     if (status === 1) {
-                        element.innerText += '↑';
-                        bodyObj.sorting[element.getAttribute('name')] = 1;
-                    } else if (status === 2) {
-                        element.innerText += '↓';
-                        bodyObj.sorting[element.getAttribute('name')] = -1;
-                    };
-                   
-                };
-                
-                const getAllInputElement = document.querySelectorAll('input');
-                getAllInputElement.forEach(each => {
-                    if (each.value) bodyObj.filter[each.getAttribute('name')] = each.value; 
-                });
 
-                const getAllSelectElement = document.querySelectorAll('select');
-                getAllSelectElement.forEach(each => {
-                    if (each.value) bodyObj.filter[each.getAttribute('name')] = each.value; 
-                });
-                
-                fetchDataTable(bodyObj);
-            }, times);
-           
+                    if (status > 0) {
+                        sorting[element.getAttribute('name')] = status === 1 ? 1 : -1;
+                    }
+                }
+
+                sorting = { ...sorting, ...collectSortingData() };
+                filter = collectFilterData();
+
+                fetchDataTable({ filter, sorting });
+            }, delay);
         };
 
         function fetchDataTable(bodyRequest){ 
