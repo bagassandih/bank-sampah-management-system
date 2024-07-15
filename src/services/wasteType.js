@@ -7,6 +7,8 @@ async function getDataWasteType(filter, sorting, pagination) {
     // initiate query 
     let queryFilter = { };
     let querySorting = { name: 'asc' };
+    if (pagination.page > 0) pagination.page -= 1; 
+    // if (pagination.page === 1) pagination.page = 0;
     const limit = pagination && pagination.limit || 10;
     const skip = limit * (pagination && pagination.page || 0);
 
@@ -55,9 +57,12 @@ async function getDataWasteType(filter, sorting, pagination) {
       .limit(limit)
       .lean();
 
+    const amountData = await wasteTypeModel.countDocuments({ status: queryFilter.status ?? 'active' });
+
     return dataWasteTpe.map(data => ({
       ...data,
       createdAt: moment(data.createdAt).format('LL'),
+      amount_data: amountData
     }));
 
   } catch (error) {

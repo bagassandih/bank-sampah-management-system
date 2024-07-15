@@ -17,60 +17,70 @@
 
                     <h1>Waste Type</h1>
                     <section class="waste-type">
-                        <section class="waste-type-container">
-                            
+                        <div class="reset-btn">
+                            <button>Add+</button>
+                            <button>Reset</button>
+                        </div>
+
+                        <section class="waste-type-container">    
                             <table class="waste-type-table">
                                 <thead>
                                     <tr>
-                                        <th>No</th>
+                                        <!-- <th>No</th> -->
                                         <th>
-                                            <div onclick="filterSorting(this)" data-sort=0 name="name">
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="name">
                                                 Name
                                             </div>
-                                            <input type="text" placeholder="Search.." name="name" oninput="filterSorting(undefined, true)">
+                                            <input type="text" placeholder="Search.." name="name" oninput="filterSorting(undefined)">
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this)" data-sort=0 name="price">
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="price">
                                                 Price
                                             </div>
                                             <div style="display: inline;">
-                                                <input type="text" placeholder="Search.." name="price" oninput="filterSorting(undefined, true)">
+                                                <input type="text" placeholder="Search.." name="price" oninput="filterSorting(undefined)">
                                             </div>
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this)" data-sort=0 name="createdAt">
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="createdAt">
                                                 Date
                                             </div>
-                                            <input type="date" placeholder="Search.." name="createdAt" oninput="filterSorting(undefined, true)">
+                                            <input type="date" placeholder="Search.." name="createdAt" oninput="filterSorting(undefined)">
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this)" data-sort=0 name="deposit_count">
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="deposit_count">
                                                 Deposit Count
                                             </div>
                                             <div style="display: inline;">
-                                                <input type="text" placeholder="Search.." name="deposit_count" oninput="filterSorting(undefined, true)">
+                                                <input type="text" placeholder="Search.." name="deposit_count" oninput="filterSorting(undefined)">
                                             </div>
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this)" data-sort=0 name="status">
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="status">
                                                 Status
                                             </div>
-                                            <select id="filter-status" name="status" oninput="filterSorting(undefined, true)">
+                                            <select id="filter-status" name="status" oninput="filterSorting(undefined)">
                                                 <option value="active">Active</option>
                                                 <option value="deleted">Deleted</option>
                                             </select>
                                         </th>
-                                        <th>Action</th>
+                                        <th class="th-action">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="data-table-waste-type">
                                   
                                 </tbody>
                             </table>
-                            <div id="pagination">
-
-                            </div>
                         </section>
+
+                        <div class="pagination">
+                            <span name="first-page" onclick="filterSorting(undefined, 'first')"> First </span>
+                            <span name="previous-page" onclick="filterSorting(undefined, 'prev')"> < </span>
+                            <span name="active-page" class="active"> 1 </span>
+                            <span name="next-page" onclick="filterSorting(undefined, 'next')"> > </span>
+                            <span name="last-page" data-page="" onclick="filterSorting(undefined, 'last')"> Last </span>
+                        </div>
+
                         <div>
                             <canvas id="lineChartWasteType"></canvas>
                         </div>
@@ -90,15 +100,17 @@
         const tableElement = document.querySelector('#data-table-waste-type');
         let timeout;
 
-        fetchDataTable();
+        filterSorting();
         function updateSortingText(element, originalText, status) {
-            element.innerText = originalText;
-            if (status === 1) {
-                element.innerText += '↑';
-            } else if (status === 2) {
-                element.innerText += '↓';
-            }
-        }
+           if (element.getAttribute('name').split('-')[1] !== 'page') {
+               element.innerText = originalText;
+               if (status === 1) {
+                   element.innerText += '↑';
+               } else if (status === 2) {
+                   element.innerText += '↓';
+               }
+           }
+        };
 
         function resetHeadersAndStatus(element, originalText) {
             document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(el => {
@@ -110,7 +122,7 @@
         }
 
         function collectSortingData() {
-            const sorting = {};
+            const sorting = { name: 'asc' };
             document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(header => {
                 const sortStatus = parseInt(header.getAttribute('data-sort'));
                 if (sortStatus > 0) {
@@ -121,7 +133,7 @@
         };
 
         function collectFilterData() {
-            const filter = {};
+            const filter = { status: 'active' };
             document.querySelectorAll('input, select').forEach(input => {
                 if (input.value) {
                     filter[input.getAttribute('name')] = input.value;
@@ -130,13 +142,49 @@
             return filter;
         };
 
-        function filterSorting(element) {
-            const delay = element ? 0 : 1000;
+        function collectPagination(paginationType) {
+            const pagination = {};
+            const limit = 10;
+            const getAllSpanPagination = document.querySelectorAll('.pagination > span');
+            getAllSpanPagination.forEach((each) => {
+                if (each.getAttribute('name') === 'active-page' && paginationType) {
+                    let activePage = parseInt(each.innerText);
+                    if (paginationType === 'next') {
+                        each.innerText = activePage + 1;
+                        pagination.page = each.innerText;
+                    } else if (paginationType === 'prev') { 
+                        if (activePage <= 1) return false; 
+                        each.innerText = activePage - 1;
+                        pagination.page = each.innerText;
+                    } else if (paginationType === 'last') {
+                        const totalData = parseInt(document.getElementsByName('last-page')[0].getAttribute('data-page'));
+                        const lastPage  = Math.ceil (totalData/limit);
+                        each.innerText = lastPage;
+                        pagination.page = each.innerText;
+                    } else if (paginationType === 'first') {
+                        if (activePage <= 1) return false; 
+                        each.innerText = 1;
+                        pagination.page = 1;
+                    } else {
+                        pagination.page = each.innerText;
+                    };
+
+                }
+            });
+            
+            pagination.page = parseInt(pagination.page);
+            pagination.limit = limit;
+            return pagination;
+        };
+
+        function filterSorting(element, paginationType) {
+            const delay = element || paginationType ? 0 : 1000;
             clearTimeout(timeout);
 
             timeout = setTimeout(() => {
                 let sorting = {};
                 let filter = {};
+                let pagination = {};
 
                 if (element) {
                     let status = parseInt(element.getAttribute('data-sort')) || 0;
@@ -156,13 +204,15 @@
 
                 sorting = { ...sorting, ...collectSortingData() };
                 filter = collectFilterData();
-
-                fetchDataTable({ filter, sorting });
+                pagination = collectPagination(paginationType);
+                console.log(pagination)
+                fetchDataTable({ filter, sorting, pagination });
             }, delay);
         };
 
         function fetchDataTable(bodyRequest){ 
-            const body = bodyRequest ?? { sorting: { name: 1 }};
+            // console.log(bodyRequest)
+            const body = bodyRequest;
             tableElement.innerHTML = '';
             const tableElementContainer = document.querySelector('.waste-type-table:nth-child(2) > thead');
             tableElement.innerHTML += `
@@ -189,7 +239,7 @@
                     const parsedElement = JSON.stringify(element).replace(/"/g, "'");
                     
                     let newElement = '<tr>';
-                    newElement += `<td style="text-align: center;"> ${index+1}</td>`;
+                    // newElement += `<td style="text-align: center;"> ${index+1}</td>`;
                     newElement += `<td>${nameConvert}</td>`;
                     newElement += `
                     <td>
@@ -207,6 +257,7 @@
                     
                     newElement += '</tr>';
                     tableElement.innerHTML += newElement;
+                    document.getElementsByName('last-page')[0].setAttribute('data-page', element.amount_data ?? 0);
                 });
             });
         };

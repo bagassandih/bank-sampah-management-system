@@ -26,7 +26,7 @@ html {
 }
 
 .sidebar {
-  z-index: 1;
+  z-index: 3;
   width: 200px;
   background-color: #0F1035;
   color: #fff;
@@ -100,7 +100,7 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  /* z-index: 1; */
+  z-index: 2;
 }
 
 .user-info {
@@ -292,6 +292,7 @@ header {
   width: 100%;
   margin-bottom: 25px;
   max-width: 100%;
+  overflow: auto;
 }
 
 .waste-type-table {
@@ -463,6 +464,76 @@ header {
   width: 100%;
 }
 
+.th-action {
+  width: 100px;
+}
+
+.reset-btn, .pagination {
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin: 5px 51px;
+}
+
+.reset-btn > button {
+  font-weight: bold;
+  font-size: 0.8em;
+  margin: 0px 2.5px;
+  padding: 10px 30px;
+  border-radius: 10px;
+  border-width: 0px;
+}
+
+.reset-btn > button:nth-child(1) {
+  background-color: #F3ED4E;
+  transition: background-color 0.5s ease;
+}
+
+.reset-btn > button:nth-child(1):hover {
+  background-color: #c5bf11;
+  color: #0F1035;
+  cursor: pointer;
+}
+
+.reset-btn > button:nth-child(2) {
+  background-color: #EEA56C;
+  transition: background-color 0.5s ease;
+}
+
+.reset-btn > button:nth-child(2):hover {
+  background-color: #ce722c;
+  color: #0F1035;
+  cursor: pointer;
+}
+
+.pagination {
+  font-size: 0.8rem;
+}
+
+.pagination > span {
+  margin: 0px 2px;
+  padding: 5px 12px;
+  background-color: #99ACFF;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.pagination > .non-active{
+  color: gray;
+}
+
+.pagination > span > input {
+  width: 15px;
+  background-color: transparent;
+  /* background-color: #333; */
+  border-width: 0px;
+}
+
+.pagination > .active {
+  background-color: #F3ED4E;
+}
+
 @media only screen and (max-width: 1024px) {
   .sidebar {
     width: 150px;
@@ -533,6 +604,10 @@ header {
 
   .faq-container, .contact-us {
     font-size: 1rem;
+  }
+
+  .reset-btn, .pagination {
+    margin: 5px 48px;
   }
 }
 
@@ -666,6 +741,19 @@ header {
 
   .contact-us-item > a {
     font-size: 1rem;
+  }
+
+  .reset-btn {
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin: 5px 70px;
+    font-size: 0.8rem;
+  }
+
+  .reset-btn > button {
+    padding: 10px 20px;
   }
 }
 
@@ -860,5 +948,44 @@ header {
 
   .dashboard table td:nth-child(2) {
     max-width: 450px;
+  }
+
+  .waste-type-table {
+    font-size: 0.8rem;
+  }
+
+  .reset-btn {
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin: 5px 36px;
+    font-size: 0.8rem;
+  }
+
+  .reset-btn > button {
+    font-weight: bold;
+    font-size: 1em;
+    margin: 0px 2.5px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border-width: 0px;
+  }
+
+  .reset-btn > button:nth-child(1) {
+    background-color: #F3ED4E;
+    transition: background-color 0.5s ease;
+  }
+
+  .reset-btn > button:nth-child(1):hover {
+    background-color: #c5bf11;
+    color: #0F1035;
+    cursor: pointer;
+  }
+
+  .waste-type-table > tbody > tr > td img {
+    max-width: 15px;
+    mix-blend-mode: multiply;
+    cursor: pointer;
   }
 }
