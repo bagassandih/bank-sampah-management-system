@@ -534,6 +534,59 @@ header {
   background-color: #F3ED4E;
 }
 
+.sa-input {
+  width: 100%;
+  padding: 10px 25px;
+}
+
+.sa-input > tbody > tr > th {
+  text-align: left; 
+  max-width: 200px;
+}
+
+.sa-input > tbody {
+  text-align: right;
+  margin: 20px;
+}
+
+.sa-input > tbody > tr > td > input {
+  padding: 5px 10px;
+  border-radius: 5px;
+  max-width: 250px;
+}
+
+.sa-input > thead > button {
+  font-weight: bold;
+  font-size: 0.8em;
+  margin: 0px 2.5px;
+  padding: 10px 30px;
+  border-radius: 10px;
+  border-width: 0px;
+}
+
+.sa {
+  float: right;
+  margin-right: 25px;
+  padding: 00px;
+  font-size: 0.9rem;
+}
+
+.reset-btn > button:nth-child(3) {
+  background-color: #dd6b55; 
+  color: white;
+  transition: background-color 0.5s ease;
+}
+
+.reset-btn > button:nth-child(3):hover {
+  background-color: #b73c23; 
+  cursor: pointer;
+}
+
+.after-title {
+  padding: 0px 10px;
+  margin-bottom: 30px;
+}
+
 @media only screen and (max-width: 1024px) {
   .sidebar {
     width: 150px;
@@ -755,6 +808,12 @@ header {
   .reset-btn > button {
     padding: 10px 20px;
   }
+
+  .after-title {
+    font-size: 0.9rem;
+    padding: 0px 5px;
+    margin-bottom: 30px;
+  }
 }
 
 @media only screen and (max-width: 425px) {
@@ -954,20 +1013,20 @@ header {
     font-size: 0.8rem;
   }
 
-  .reset-btn {
+  .reset-btn, .pagination {
     width: 90%;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
     margin: 5px 36px;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   .reset-btn > button {
     font-weight: bold;
     font-size: 1em;
     margin: 0px 2.5px;
-    padding: 10px 20px;
+    padding: 5px 10px;
     border-radius: 10px;
     border-width: 0px;
   }
@@ -987,5 +1046,11 @@ header {
     max-width: 15px;
     mix-blend-mode: multiply;
     cursor: pointer;
+  }
+
+  .after-title {
+    font-size: 0.8rem;
+    padding: 0px 5px;
+    margin-bottom: 30px;
   }
 }

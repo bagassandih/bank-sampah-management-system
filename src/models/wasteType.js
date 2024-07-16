@@ -1,19 +1,22 @@
 const mongoose = require('mongoose');
+
 // initiate schema
 const wasteTypeSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     price: {
         type: Number,
-        default: [0, 'Amount must be at least 0'],
+        min: [0, 'price must be at least 0'],
         required: true
     },
     deposit_count: {
         type: Number,
-        default: [0, 'Amount must be at least 0'],
+        min: [0, 'deposit_count must be at least 0'],
+        default: 0
     },
     status: {
         type: String,
@@ -23,5 +26,5 @@ const wasteTypeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // from schema to model
-const wasteType = mongoose.model('waste_type', wasteTypeSchema);
-module.exports = wasteType; 
+const WasteType = mongoose.model('waste_type', wasteTypeSchema);
+module.exports = WasteType;

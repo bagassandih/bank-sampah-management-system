@@ -16,12 +16,15 @@
                 <div onclick="toggleSidebarClose()">
 
                     <h1>Waste Type</h1>
-                    <section class="waste-type">
+                    <p class="after-title">
+                        Manage types of waste, you can change the name and price, delete them, and also edit them. The name is unique, where it cannot be the same as other data or duplicated, and you can add more than one data at once.
+                    </p>
+                    <section class="waste-type">    
+                        
                         <div class="reset-btn">
-                            <button>Add+</button>
-                            <button>Reset</button>
+                            <button onclick="createDataWasteType()">Add+</button>
+                            <button onclick="filterSorting(undefined, 'same')">Reset</button>
                         </div>
-
                         <section class="waste-type-container">    
                             <table class="waste-type-table">
                                 <thead>
@@ -31,35 +34,35 @@
                                             <div onclick="filterSorting(this, 'same')" data-sort=0 name="name">
                                                 Name
                                             </div>
-                                            <input type="text" placeholder="Search.." name="name" oninput="filterSorting(undefined)">
+                                            <input type="text" placeholder="Search.." name="name" oninput="filterSorting(undefined, 'same')">
                                         </th>
                                         <th>
                                             <div onclick="filterSorting(this, 'same')" data-sort=0 name="price">
                                                 Price
                                             </div>
                                             <div style="display: inline;">
-                                                <input type="text" placeholder="Search.." name="price" oninput="filterSorting(undefined)">
+                                                <input type="number" placeholder="Search.." name="price" oninput="filterSorting(undefined, 'same')">
                                             </div>
                                         </th>
                                         <th>
                                             <div onclick="filterSorting(this, 'same')" data-sort=0 name="createdAt">
                                                 Date
                                             </div>
-                                            <input type="date" placeholder="Search.." name="createdAt" oninput="filterSorting(undefined)">
+                                            <input type="date" placeholder="Search.." name="createdAt" oninput="filterSorting(undefined, 'same')">
                                         </th>
                                         <th>
                                             <div onclick="filterSorting(this, 'same')" data-sort=0 name="deposit_count">
                                                 Deposit Count
                                             </div>
                                             <div style="display: inline;">
-                                                <input type="text" placeholder="Search.." name="deposit_count" oninput="filterSorting(undefined)">
+                                                <input type="text" placeholder="Search.." name="deposit_count" oninput="filterSorting(undefined, 'same')">
                                             </div>
                                         </th>
                                         <th>
                                             <div onclick="filterSorting(this, 'same')" data-sort=0 name="status">
                                                 Status
                                             </div>
-                                            <select id="filter-status" name="status" oninput="filterSorting(undefined)">
+                                            <select id="filter-status" name="status" oninput="filterSorting(undefined, 'same')">
                                                 <option value="active">Active</option>
                                                 <option value="deleted">Deleted</option>
                                             </select>
@@ -80,13 +83,6 @@
                             <span name="next-page" onclick="filterSorting(undefined, 'next')"> > </span>
                             <span name="last-page" data-page="" onclick="filterSorting(undefined, 'last')"> Last </span>
                         </div>
-
-                        <div>
-                            <canvas id="lineChartWasteType"></canvas>
-                        </div>
-                        <p>
-                            It can be used to analyze the most common types of waste generated based on each customer's place of residence, while still receiving benefits for making deposits.
-                        </p>
                     </section>
 
                 </div>
@@ -96,173 +92,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/sidebar.js"></script>
     <script src="./js/waste-type.js"></script>
-    <script>
-        const tableElement = document.querySelector('#data-table-waste-type');
-        let timeout;
-
-        filterSorting();
-        function updateSortingText(element, originalText, status) {
-           if (element.getAttribute('name').split('-')[1] !== 'page') {
-               element.innerText = originalText;
-               if (status === 1) {
-                   element.innerText += '↑';
-               } else if (status === 2) {
-                   element.innerText += '↓';
-               }
-           }
-        };
-
-        function resetHeadersAndStatus(element, originalText) {
-            document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(el => {
-                el.innerText = el.innerText.replace(/[↓↑]/g, '');
-                if (el.innerText !== originalText) {
-                    el.setAttribute('data-sort', 0);
-                }
-            });
-        }
-
-        function collectSortingData() {
-            const sorting = { name: 'asc' };
-            document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(header => {
-                const sortStatus = parseInt(header.getAttribute('data-sort'));
-                if (sortStatus > 0) {
-                    sorting[header.getAttribute('name')] = sortStatus === 1 ? 1 : -1;
-                }
-            });
-            return sorting;
-        };
-
-        function collectFilterData() {
-            const filter = { status: 'active' };
-            document.querySelectorAll('input, select').forEach(input => {
-                if (input.value) {
-                    filter[input.getAttribute('name')] = input.value;
-                }
-            });
-            return filter;
-        };
-
-        function collectPagination(paginationType) {
-            const pagination = {};
-            const limit = 10;
-            const getAllSpanPagination = document.querySelectorAll('.pagination > span');
-            getAllSpanPagination.forEach((each) => {
-                if (each.getAttribute('name') === 'active-page' && paginationType) {
-                    let activePage = parseInt(each.innerText);
-                    if (paginationType === 'next') {
-                        each.innerText = activePage + 1;
-                        pagination.page = each.innerText;
-                    } else if (paginationType === 'prev') { 
-                        if (activePage <= 1) return false; 
-                        each.innerText = activePage - 1;
-                        pagination.page = each.innerText;
-                    } else if (paginationType === 'last') {
-                        const totalData = parseInt(document.getElementsByName('last-page')[0].getAttribute('data-page'));
-                        const lastPage  = Math.ceil (totalData/limit);
-                        each.innerText = lastPage;
-                        pagination.page = each.innerText;
-                    } else if (paginationType === 'first') {
-                        if (activePage <= 1) return false; 
-                        each.innerText = 1;
-                        pagination.page = 1;
-                    } else {
-                        pagination.page = each.innerText;
-                    };
-
-                }
-            });
-            
-            pagination.page = parseInt(pagination.page);
-            pagination.limit = limit;
-            return pagination;
-        };
-
-        function filterSorting(element, paginationType) {
-            const delay = element || paginationType ? 0 : 1000;
-            clearTimeout(timeout);
-
-            timeout = setTimeout(() => {
-                let sorting = {};
-                let filter = {};
-                let pagination = {};
-
-                if (element) {
-                    let status = parseInt(element.getAttribute('data-sort')) || 0;
-                    const originalText = element.innerText.replace(/[↓↑]/g, '');
-                    const fieldName = originalText.toLowerCase().replace(' ', '_').split(' ')[0];
-
-                    // Update status
-                    status = (status + 1) % 3;
-                    resetHeadersAndStatus(element, originalText);
-                    updateSortingText(element, originalText, status);
-                    element.setAttribute('data-sort', status);
-
-                    if (status > 0) {
-                        sorting[element.getAttribute('name')] = status === 1 ? 1 : -1;
-                    }
-                }
-
-                sorting = { ...sorting, ...collectSortingData() };
-                filter = collectFilterData();
-                pagination = collectPagination(paginationType);
-                console.log(pagination)
-                fetchDataTable({ filter, sorting, pagination });
-            }, delay);
-        };
-
-        function fetchDataTable(bodyRequest){ 
-            // console.log(bodyRequest)
-            const body = bodyRequest;
-            tableElement.innerHTML = '';
-            const tableElementContainer = document.querySelector('.waste-type-table:nth-child(2) > thead');
-            tableElement.innerHTML += `
-            <tr id='loading'>
-                <td colspan='7' style='text-align: center;'>
-                    <img src='https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-05-37_512.gif' width='25%'/>
-                </td>
-            </tr>
-            `; 
-
-            fetch('http://localhost:3000/waste-type/table', {
-                method: 'POST',  // Change to POST
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            })
-            .then( res => res.json())
-            .then(res => {
-                const dataTable = res.result.data;
-                tableElement.querySelector('#loading').remove();
-                dataTable.forEach((element, index) => {
-                    const nameConvert = element.name[0].toUpperCase() + element.name.slice(1);
-                    const statusConvert = element.status[0].toUpperCase() + element.status.slice(1);
-                    const priceConvert = new Intl.NumberFormat('id-ID', { style: 'currency' , currency: 'IDR'}).format(element.price);
-                    const parsedElement = JSON.stringify(element).replace(/"/g, "'");
-                    
-                    let newElement = '<tr>';
-                    // newElement += `<td style="text-align: center;"> ${index+1}</td>`;
-                    newElement += `<td>${nameConvert}</td>`;
-                    newElement += `
-                    <td>
-                        ${priceConvert}
-                    </td>`;
-                    newElement += `<td>${element.createdAt}</td>`;
-                    newElement += `<td style="text-align: center;">${element.deposit_count ?? 0}</td>`;
-                    newElement += `<td style="text-align: center;">${statusConvert}</td>`;
-                    newElement += `
-                    <td style="text-align: center;">
-                        <img src="img/asset-15.png" onclick="alert('ok')"/>
-                        <img src="img/asset-14.png" onclick="alert('ok')"/>
-                        <img src="img/asset-16.png" onclick="getDetailWasteType(${parsedElement})"/>
-                    </td>`;
-                    
-                    newElement += '</tr>';
-                    tableElement.innerHTML += newElement;
-                    document.getElementsByName('last-page')[0].setAttribute('data-page', element.amount_data ?? 0);
-                });
-            });
-        };
-        
-    </script>
 </body>
 
 </html>
