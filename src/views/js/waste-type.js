@@ -1,6 +1,10 @@
 const tableElement = document.querySelector('#data-table-waste-type');
+const baseUrlApi = 'http://localhost:3000/';
+// const baseUrlApi = 'https://9s4mm4vd-3000.asse.devtunnels.ms/';
 let timeout;
 let inputCount = 1;
+
+filterSorting(undefined, 'same');
 
 function getDetailWasteType(data) {
   delete data.updatedAt;
@@ -21,7 +25,6 @@ function getDetailWasteType(data) {
   });
 };
 
-filterSorting(undefined, 'same');
 function updateSortingText(element, originalText, status) {
   if (element.getAttribute('name').split('-')[1] !== 'page') {
     element.innerText = originalText;
@@ -99,9 +102,9 @@ function collectPagination(paginationType) {
 };
 
 function filterSorting(element, paginationType) {
-  const delay = element || paginationType ? 0 : 1000;
+  const delay = element || paginationType !== 'same' ? 0 : 1000;
   clearTimeout(timeout);
-
+  console.log(delay)
   timeout = setTimeout(() => {
     let sorting = {};
     let filter = {};
@@ -143,7 +146,7 @@ function fetchDataTable(bodyRequest) {
     </tr>
     `;
 
-  fetch('http://localhost:3000/waste-type/table', {
+  fetch(baseUrlApi + 'waste-type/table', {
     method: 'POST',  // Change to POST
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
@@ -210,7 +213,7 @@ function deleteDataWasteType(data) {
     confirmButtonText: "Confirm"
   }).then((result) => {
     if (result.isConfirmed) {
-      fetch('http://localhost:3000/waste-type/', {
+      fetch(baseUrlApi + 'waste-type/', {
         method: 'DELETE',  // Change to POST
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: data._id })
@@ -272,7 +275,7 @@ function editDataWasteType(data) {
       price: getPriceValue
     };
     if (result.isConfirmed) {
-      fetch('http://localhost:3000/waste-type/', {
+      fetch(baseUrlApi + 'waste-type/', {
         method: 'PUT',  // Change to POST
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: data._id, input: bodyRequest })
@@ -369,8 +372,8 @@ function createDataWasteType() {
     showCancelButton: true,
   }).then((result) => {
     let bodyRequest = [];
-    const test = document.querySelectorAll('.sa-input > tbody');
-    test.forEach(e => {
+    const element = document.querySelectorAll('.sa-input > tbody');
+    element.forEach(e => {
       const logs = e.querySelectorAll('input');
       bodyRequest.push({
         name: logs[0].value.toLowerCase(),
@@ -379,7 +382,7 @@ function createDataWasteType() {
     });
 
     if (result.isConfirmed) {
-      fetch('http://localhost:3000/waste-type/', {
+      fetch(baseUrlApi + 'waste-type/', {
         method: 'POST',  // Change to POST
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: bodyRequest })
@@ -404,3 +407,14 @@ function createDataWasteType() {
     }
   });
 };
+
+function resetFilter() {
+  document.querySelectorAll('.waste-type-table > thead > tr > th').forEach(each => {
+      const inputElement = each.querySelector('input, div > input') ?? null;
+      inputElement ? inputElement.value = '' : null
+      
+      const selectElement = each.querySelector('select') ?? null;
+      selectElement ? selectElement.value = 'active' : null
+    });
+  filterSorting(undefined, 'reset');
+}

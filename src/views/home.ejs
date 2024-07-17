@@ -97,13 +97,13 @@
                         </section>
                     </section>
 
-                    <h1 id="scroll-data-summary">Data Summary (<%= data.currentYear %>)</h1>
+                    <h1 id="scroll-data-summary">Data Summary (<%= data.dataHome.currentYear %>)</h1>
                     <section class="counter-container">
                         <div class="counter-box">
                             <div class="counter-item">
                                 <img src="./img/asset-7.png">
                                 <span class="number">
-                                    <%= data.countCustomer %>
+                                    <%= data.dataHome.countCustomer %>
                                 </span>
                                 <span class="notes">Total <br> Customers</span>
                             </div>
@@ -117,7 +117,7 @@
                                 <img src="./img/asset-6.png">
 
                                 <span class="number-deposit">
-                                    <%= data.totalDeposit %>
+                                    <%= data.dataHome.totalDeposit %>
                                 </span>
                                 <span class="notes"> Amount <br> Deposit</span>
 
@@ -132,7 +132,7 @@
                                 <img src="./img/asset-8.png">
 
                                 <span class="number">
-                                    <%= data.countWasteType %>
+                                    <%= data.dataHome.countWasteType %>
                                 </span>
                                 <span class="notes">Total <br> Waste Types</span>
 
