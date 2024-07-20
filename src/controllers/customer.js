@@ -5,7 +5,8 @@ async function getCustomer(req, res) {
     try {
         const { filter, sorting, pagination } = req.body;
         const dataCustomers = await services.getDataCustomer(filter, sorting, pagination);
-        res.status(200).json({ dataCustomers });
+        const result = { data: dataCustomers, full_name: req.user?.full_name ?? null };
+        res.status(200).json({ result });
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message });
@@ -67,10 +68,17 @@ async function getProfileCustomer(req, res) {
     }
 };
 
+async function customerPage(req, res) {
+    const auth = req.user?.full_name;
+    if (!auth) return res.redirect('/');
+    res.render('customer', { full_name: auth });
+};
+
 module.exports = {
     getCustomer,
     createCustomer,
     updateCustomer,
     deleteCustomer,
-    getProfileCustomer
+    getProfileCustomer,
+    customerPage
 };
