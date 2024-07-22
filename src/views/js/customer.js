@@ -6,25 +6,127 @@ let inputCount = 1;
 
 filterSorting(undefined, 'same');
 
+///// CRUD
 function getDetailCustomer(data) {
-  delete data.updatedAt;
+  // delete unecesarry field
   delete data.__v;
 
-  let htmlData = `<table style='text-align: left; width: 90%; margin: auto;' id='waste-types'>`;
+  let htmlData = `<table style='text-align: left; width: 100%; margin: auto;' id='waste-types'>`;
   for (const key in data) {
     htmlData += '<tr>';
-    htmlData += `<th>${key}</th>`;
-    htmlData += `<td>${data[key]}</td>`;
+    if (key === 'balance') {
+      if (data[key].deposit !== undefined) {
+        htmlData += '<tr>';
+        htmlData += `<th>deposit</th>`;
+        htmlData += `<td>${data.balance.deposit}</td>`;
+        htmlData += '</tr>';
+      }; 
+      if (data[key].withdrawal !== undefined) {
+        htmlData += '<tr>';
+        htmlData += `<th>withdrawal</th>`;
+        htmlData += `<td>${data.balance.withdrawal}</td>`;
+        htmlData += '</tr>';
+      };
+    } else {
+      htmlData += `<th>${key}</th>`;
+      htmlData += `<td>${data[key]}</td>`;
+    };
     htmlData += '</tr>';
   };
   htmlData += '</table>';
 
   Swal.fire({
-    title: data.name[0].toUpperCase() + data.name.slice(1),
+    title: data.full_name[0].toUpperCase() + data.full_name.slice(1),
     html: htmlData
   });
 };
 
+function editDataCustomer(data) {
+  const tables = `
+    <table class='sa-input'>
+        <tr>
+            <th>
+                Name
+            </th>
+            <td>
+                <input type="text" value="${data.full_name}">    
+            </td>
+        </tr>
+         <tr>
+            <th>
+                Phone
+            </th>
+            <td>
+                <input type="number" value="${data.phone_number}" min="0">    
+            </td>
+        </tr>
+         <tr>
+            <th>
+                Address
+            </th>
+            <td>
+                <textarea>${data.address}</textarea>
+            </td>
+        </tr>
+         <tr>
+            <th>
+                Decision
+            </th>
+            <td>
+                <select>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+            </t>
+        </tr>
+    </table>
+    `;
+
+  Swal.fire({
+    title: 'Edit data ' + data.full_name,
+    html: tables,
+    confirmButtonText: 'Save',
+    confirmButtonColor: 'gold',
+    showCancelButton: true,
+  }).then((result) => {
+    const getNameValue = document.querySelectorAll('.sa-input input')[0].value;
+    const getPhoneValue = document.querySelectorAll('.sa-input input')[1].value;
+    const getAdressValue = document.querySelector('.sa-input textarea').value;
+    const getDecisionValue = document.querySelector('.sa-input select').value;
+    const bodyRequest = {
+      full_name: getNameValue,
+      phone_number: getPhoneValue,
+      address: getAdressValue,
+      withdrawal_decision: getDecisionValue
+    };
+    if (result.isConfirmed) {
+      fetch(baseUrlApi + 'customer', {
+        method: 'PUT',  // Change to POST
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: data._id, input: bodyRequest })
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          if (res.status) {
+            Swal.fire({
+              title: "Failed to edit!",
+              text: res.message,
+              icon: "error"
+            });
+          } else {
+            Swal.fire({
+              title: 'Successfully updated!',
+              icon: "success"
+            }).then((res) => {
+              filterSorting();
+            });
+          };
+        })
+    }
+  });
+};
+
+// PAGINATION
 function updateSortingText(element, originalText, status) {
   if (element.getAttribute('name').split('-')[1] !== 'page') {
     element.innerText = originalText;
@@ -178,68 +280,6 @@ function deleteDataCustomer(data) {
   });
 };
 
-function editDataCustomer(data) {
-  const tables = `
-    <table class='sa-input'>
-        <tr>
-            <th>
-                Name
-            </th>
-            <td>
-                <input type="text" value="${data.name}">    
-            </td>
-        </tr>
-         <tr>
-            <th>
-                Price
-            </th>
-            <td>
-                <input type="number" value="${data.price}" min="1">    
-            </td>
-        </tr>
-    </table>
-    `;
-
-  Swal.fire({
-    title: 'Edit data ' + data.name,
-    html: tables,
-    confirmButtonText: 'Save',
-    confirmButtonColor: 'gold',
-    showCancelButton: true,
-  }).then((result) => {
-    const getNameValue = document.querySelectorAll('.sa-input > tbody > tr > td > input')[0].value;
-    const getPriceValue = document.querySelectorAll('.sa-input > tbody > tr > td > input')[1].value;
-    const bodyRequest = {
-      name: getNameValue,
-      price: getPriceValue
-    };
-    if (result.isConfirmed) {
-      fetch(baseUrlApi + 'waste-type/', {
-        method: 'PUT',  // Change to POST
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: data._id, input: bodyRequest })
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          if (res.status) {
-            Swal.fire({
-              title: "Failed to edit!",
-              text: res.message,
-              icon: "error"
-            });
-          } else {
-            Swal.fire({
-              title: 'Successfully updated!',
-              icon: "success"
-            }).then((res) => {
-              filterSorting();
-            });
-          };
-        })
-    }
-  });
-};
-
 function addMoreInput() {
   inputCount++;
   document.querySelector('.swal2-html-container').innerHTML += `
@@ -367,7 +407,6 @@ function resetFilter() {
 }
 
 /// Fetching data
-
 function fetchDataTable(bodyRequest) {
   const body = bodyRequest;
   tableElement.innerHTML = '';
@@ -391,7 +430,10 @@ function fetchDataTable(bodyRequest) {
       if (dataTable?.length) {
         dataTable.forEach((element, index) => {
           let nameConvert = element.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
+          let addressConvert = element.address[0].toUpperCase() + element.address.slice(1);
+
           if (nameConvert.length > 20) nameConvert = nameConvert.slice(0, 20) + '...';
+          if (addressConvert.length > 20) addressConvert = addressConvert.slice(0, 20) + '...';
           const statusConvert = element.status[0].toUpperCase() + element.status.slice(1);
           const depositConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.balance.deposit);
           const withdrawConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.balance.withdrawal);
@@ -401,7 +443,8 @@ function fetchDataTable(bodyRequest) {
           let newElement = '<tr>';
           // newElement += `<td style="text-align: center;"> ${index+1}</td>`;
           newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nameConvert}</td>`;
-          // newElement += `<td>${nameConvert}</td>`;
+          newElement += `<td>${element.phone_number !== 'unknown' ? element.phone_number : '-'}</td>`;
+          newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${addressConvert}</td>`;
           newElement += `<td>${depositConvert}</td>`;
           newElement += `<td>${withdrawConvert}</td>`;
           newElement += `<td>${element.join_date}</td>`;
@@ -409,7 +452,7 @@ function fetchDataTable(bodyRequest) {
           newElement += `<td style="text-align: center;">${statusConvert}</td>`;
           newElement += `
                 <td style="text-align: center;">
-                    <img src="img/asset-15.png" onclick="editCustomer(${parsedElement})"/>
+                    <img src="img/asset-15.png" onclick="editDataCustomer(${parsedElement})"/>
                     <img src="img/asset-14.png" onclick="deleteCustomer(${parsedElement})"/>
                     <img src="img/asset-16.png" onclick="getDetailCustomer(${parsedElement})"/>
                 </td>`;

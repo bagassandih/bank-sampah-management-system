@@ -588,6 +588,28 @@ header {
   margin-bottom: 30px;
 }
 
+.sa-input textarea {
+  width: 100%;
+  max-width: 185px;
+  border-radius: 5px;
+  border-width: 2px;
+  border-color: black;
+  height: 50px;
+  max-height: 400px;
+  resize: none;
+  text-align: left;
+  padding: 2px;
+}
+
+.sa-input select {
+  width: 193px;
+  text-align: center;
+  padding: 2px;
+  border-radius: 5px;
+  border-width: 2px;
+  border-color: black;
+}
+
 @media only screen and (max-width: 1024px) {
   .sidebar {
     width: 150px;

@@ -37,6 +37,18 @@
                                             <input type="text" placeholder="Search.." name="full_name" oninput="filterSorting(undefined, 'same')">
                                         </th>
                                         <th>
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="phone_number">
+                                                Phone
+                                            </div>
+                                            <input type="text" placeholder="Search.." name="phone_number" oninput="filterSorting(undefined, 'same')">
+                                        </th>
+                                        <th>
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="address">
+                                                Address
+                                            </div>
+                                            <input type="text" placeholder="Search.." name="address" oninput="filterSorting(undefined, 'same')">
+                                        </th>
+                                        <th>
                                             <div onclick="filterSorting(this, 'same')" data-sort=0 name="balance.deposit">
                                                 Deposit
                                             </div>
@@ -63,6 +75,7 @@
                                                 Decision
                                             </div>
                                             <select id="filter-status" name="withdrawal_decision" oninput="filterSorting(undefined, 'same')">
+                                                <option value="">All</option>
                                                 <option value="yes">Yes</option>
                                                 <option value="no">No</option>
                                             </select>
