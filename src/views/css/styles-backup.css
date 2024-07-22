@@ -299,6 +299,7 @@ header {
   width: 90%; 
   margin: auto;
   padding: 10px 0px;
+  overflow: auto;
 }
 
 .waste-type-table > thead > tr > th {

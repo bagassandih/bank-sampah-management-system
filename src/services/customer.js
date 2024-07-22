@@ -68,12 +68,17 @@ async function getDataCustomer(filter, sorting, pagination) {
             querySorting = sorting;
         };
 
-        return await customerModel
+        const result = await customerModel
             .find(queryFilter)
             .sort(querySorting)
             .skip(skip)
             .limit(limit)
             .lean();
+
+        return result.map(data => ({
+            ...data,
+            join_date: moment(data.join_date).format('LL')
+        })); 
 
     } catch (error) {
         throw { status: 400, message: error.message };

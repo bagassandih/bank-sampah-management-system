@@ -388,18 +388,18 @@ function fetchDataTable(bodyRequest) {
         dataTable.forEach((element, index) => {
           const nameConvert = element.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
           const statusConvert = element.status[0].toUpperCase() + element.status.slice(1);
-          const priceConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.price);
+          const depositConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.balance.deposit);
+          const withdrawConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.balance.withdrawal);
+          const decisionConvert = element.withdrawal_decision[0].toUpperCase() + element.withdrawal_decision.slice(1);
           const parsedElement = JSON.stringify(element).replace(/"/g, "'");
 
           let newElement = '<tr>';
           // newElement += `<td style="text-align: center;"> ${index+1}</td>`;
           newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nameConvert}</td>`;
-          newElement += `
-                <td>
-                    ${priceConvert}
-                </td>`;
-          newElement += `<td>${element.createdAt}</td>`;
-          newElement += `<td style="text-align: center;">${element.deposit_count ?? 0}</td>`;
+          newElement += `<td>${depositConvert}</td>`;
+          newElement += `<td>${withdrawConvert}</td>`;
+          newElement += `<td>${element.join_date}</td>`;
+          newElement += `<td style="text-align: center;">${decisionConvert}</td>`;
           newElement += `<td style="text-align: center;">${statusConvert}</td>`;
           newElement += `
                 <td style="text-align: center;">
