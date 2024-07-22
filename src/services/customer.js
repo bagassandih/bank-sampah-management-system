@@ -7,7 +7,8 @@ async function getDataCustomer(filter, sorting, pagination) {
     try {
         // initiate query 
         let queryFilter = {};
-        let querySorting = { full_name: 'asc' };
+        let querySorting = {};
+        if (pagination.page > 0) pagination.page -= 1; 
         const limit = pagination && pagination.limit || 10;
         const skip = limit * (pagination && pagination.page || 0);
 

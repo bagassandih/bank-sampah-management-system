@@ -30,7 +30,7 @@
                             <table class="waste-type-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 10px;">
+                                        <th>
                                             <div onclick="filterSorting(this, 'same')" data-sort=0 name="full_name">
                                                 Name
                                             </div>
@@ -41,7 +41,7 @@
                                                 Deposit
                                             </div>
                                             <div style="display: inline;">
-                                                <input type="number" placeholder="Search.." name="price" oninput="filterSorting(undefined, 'same')">
+                                                <input type="number" placeholder="Search.." name="balance.deposit" oninput="filterSorting(undefined, 'same')">
                                             </div>
                                         </th>
                                         <th>
@@ -49,7 +49,7 @@
                                                 Withdrawal
                                             </div>
                                             <div style="display: inline;">
-                                                <input type="number" placeholder="Search.." name="price" oninput="filterSorting(undefined, 'same')">
+                                                <input type="number" placeholder="Search.." name="balance.withdrawal" oninput="filterSorting(undefined, 'same')">
                                             </div>
                                         </th>
                                         <th>

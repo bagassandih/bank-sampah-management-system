@@ -352,8 +352,16 @@ function resetFilter() {
       const inputElement = each.querySelector('input, div > input') ?? null;
       inputElement ? inputElement.value = '' : null
       
-      const selectElement = each.querySelector('select') ?? null;
-      selectElement ? selectElement.value = 'active' : null
+      const selectElement = each.querySelector('select');
+
+      if (selectElement) {
+        const typeSelectElement = selectElement.getAttribute('name');
+        if (typeSelectElement === 'status') {
+          selectElement.value = 'active';
+        } else if (typeSelectElement === 'withdrawal_decision') {
+          selectElement.value = 'yes';
+        }
+      }
     });
   filterSorting(undefined, 'reset');
 }
@@ -361,10 +369,7 @@ function resetFilter() {
 /// Fetching data
 
 function fetchDataTable(bodyRequest) {
-  // console.log(bodyRequest)
-  bodyRequest = { filter: { status: 'active'}}
   const body = bodyRequest;
-  console.log(bodyRequest)
   tableElement.innerHTML = '';
   const tableElementContainer = document.querySelector('.waste-type-table:nth-child(2) > thead');
   tableElement.innerHTML += `
@@ -382,11 +387,11 @@ function fetchDataTable(bodyRequest) {
     .then(res => res.json())
     .then(res => {
       const dataTable = res.result?.data;
-      console.log(dataTable)
       tableElement.querySelector('#loading').remove();
       if (dataTable?.length) {
         dataTable.forEach((element, index) => {
-          const nameConvert = element.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
+          let nameConvert = element.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
+          if (nameConvert.length > 20) nameConvert = nameConvert.slice(0, 20) + '...';
           const statusConvert = element.status[0].toUpperCase() + element.status.slice(1);
           const depositConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.balance.deposit);
           const withdrawConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.balance.withdrawal);
@@ -396,6 +401,7 @@ function fetchDataTable(bodyRequest) {
           let newElement = '<tr>';
           // newElement += `<td style="text-align: center;"> ${index+1}</td>`;
           newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nameConvert}</td>`;
+          // newElement += `<td>${nameConvert}</td>`;
           newElement += `<td>${depositConvert}</td>`;
           newElement += `<td>${withdrawConvert}</td>`;
           newElement += `<td>${element.join_date}</td>`;
