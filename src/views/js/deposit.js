@@ -1,140 +1,73 @@
-const tableElement = document.querySelector('#data-table-customer');
+const tableElement = document.querySelector('#data-table-deposit');
 const baseUrlApi = 'http://localhost:3000/';
-
 let timeout;
 let inputCount = 1;
 
 filterSorting(undefined, 'same');
 
 // CRUD
-function getDetailCustomer(data) {
-  // delete unecesarry field
+function getDetailDeposit(data) {
+  // delete unnecessary field
   delete data.__v;
+  delete data.sortField;
 
   let htmlData = `<table style='text-align: left; width: 100%; margin: auto;' id='waste-types'>`;
   for (const key in data) {
-    htmlData += '<tr>';
-    if (key === 'balance') {
-      if (data[key].deposit !== undefined) {
+    if (key === 'customer') {
+      if (data[key].full_name !== undefined) {
         htmlData += '<tr>';
-        htmlData += `<th>deposit</th>`;
-        htmlData += `<td>${data.balance.deposit}</td>`;
+        htmlData += `<th>customer_full_name</th>`;
+        htmlData += `<td>${data.customer.full_name}</td>`;
         htmlData += '</tr>';
-      }; 
-      if (data[key].withdrawal !== undefined) {
+      } 
+
+      if (data[key]._id !== undefined) {
         htmlData += '<tr>';
-        htmlData += `<th>withdrawal</th>`;
-        htmlData += `<td>${data.balance.withdrawal}</td>`;
+        htmlData += `<th>customer_id</th>`;
+        htmlData += `<td>${data.customer._id}</td>`;
         htmlData += '</tr>';
-      };
+      }
+      
+      // remove the processed customer field
+      delete data.customer;
+    } else if (key === 'waste_type') {
+      if (data[key].name !== undefined) {
+        htmlData += '<tr>';
+        htmlData += `<th>waste_type_name</th>`;
+        htmlData += `<td>${data.waste_type.name}</td>`;
+        htmlData += '</tr>';
+      } 
+
+      if (data[key]._id !== undefined) {
+        htmlData += '<tr>';
+        htmlData += `<th>waste_type_id</th>`;
+        htmlData += `<td>${data.waste_type._id}</td>`;
+        htmlData += '</tr>';
+      }
+
+      // remove the processed waste_type field
+      delete data.waste_type;
     } else {
+      htmlData += '<tr>';
       htmlData += `<th>${key}</th>`;
       htmlData += `<td>${data[key]}</td>`;
-    };
-    htmlData += '</tr>';
-  };
+      htmlData += '</tr>';
+    }
+  }
   htmlData += '</table>';
 
   Swal.fire({
-    title: data.full_name[0].toUpperCase() + data.full_name.slice(1),
+    title: 'Data Deposit',
     html: htmlData
   });
 };
 
-function editDataCustomer(data) {
-  const tables = `
-    <table class='sa-input'>
-        <tr>
-            <th>
-                Name
-            </th>
-            <td>
-                <input type="text" value="${data.full_name}">    
-            </td>
-        </tr>
-         <tr>
-            <th>
-                Phone
-            </th>
-            <td>
-                <input type="number" value="${data.phone_number}" min="0">    
-            </td>
-        </tr>
-         <tr>
-            <th>
-                Address
-            </th>
-            <td>
-                <textarea>${data.address}</textarea>
-            </td>
-        </tr>
-         <tr>
-            <th>
-                Decision
-            </th>
-            <td>
-                <select>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-            </td>
-        </tr>
-    </table>
-    `;
-
-  Swal.fire({
-    title: 'Edit data ' + data.full_name,
-    html: tables,
-    confirmButtonText: 'Save',
-    confirmButtonColor: 'gold',
-    showCancelButton: true,
-  }).then((result) => {
-    const getNameValue = document.querySelectorAll('.sa-input input')[0].value;
-    const getPhoneValue = document.querySelectorAll('.sa-input input')[1].value;
-    const getAdressValue = document.querySelector('.sa-input textarea').value;
-    const getDecisionValue = document.querySelector('.sa-input select').value;
-    const bodyRequest = {
-      full_name: getNameValue,
-      phone_number: getPhoneValue,
-      address: getAdressValue,
-      withdrawal_decision: getDecisionValue
-    };
-    if (result.isConfirmed) {
-      fetch(baseUrlApi + 'customer', {
-        method: 'PUT',  // Change to POST
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: data._id, input: bodyRequest })
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          if (res.status) {
-            Swal.fire({
-              title: "Failed to edit!",
-              text: res.message,
-              icon: "error"
-            });
-          } else {
-            Swal.fire({
-              title: 'Successfully updated!',
-              icon: "success"
-            }).then((res) => {
-              filterSorting();
-            });
-          };
-        })
-    }
-  });
-};
-
-function deleteDataCustomer(data) {
+function deleteDataDeposit(data) {
   let generateTitle;
   let generateText;
   if (data.status === 'active') {
-    generateText = data.full_name + " has been deleted";
-    generateTitle = 'Confirm to delete ' + data.full_name + '?';
-  } else {
-    generateText = data.full_name + " has been reactivated";
-    generateTitle = 'Confirm to re-active ' + data.full_name + '?';
+    generateText = data._id + " has been deleted";
+    generateTitle = 'Confirm to delete ' + data._id + '?';
   };
 
   Swal.fire({
@@ -146,7 +79,7 @@ function deleteDataCustomer(data) {
     confirmButtonText: "Confirm"
   }).then((result) => {
     if (result.isConfirmed) {
-      fetch(baseUrlApi + 'customer', {
+      fetch(baseUrlApi + 'deposit', {
         method: 'DELETE',  // Change to POST
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: data._id })
@@ -172,48 +105,133 @@ function deleteDataCustomer(data) {
   });
 };
 
-function createDataCustomer() {
-  inputCount = 1;
+async function calculateAmount(count) {
+  const getDocument = document.querySelectorAll('.sa-input')[count-1];
+
+  const getValueWasteType = getDocument.querySelectorAll('select')[0].value;
+  const listWasteType = await getAllWasteTypeData();
+  const getOneDataWasteType = listWasteType.filter((each) => each._id === getValueWasteType)[0];
+  const getAmountValue = getDocument.querySelectorAll('.sa-input input')[0].value;
+
+  const calculate = getAmountValue * getOneDataWasteType.price;
+
+  getDocument.querySelectorAll('.sa-input input')[1].value = calculate;
+};
+
+async function getAllWasteTypeData() {
+  const bodyRequest = {
+    filter: { status: 'active' },
+    pagination: { page: 0, limit: 1000 }
+  };
+
+  try {
+    const response = await fetch(baseUrlApi + 'waste-type/table', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyRequest)
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+
+    const res = await response.json();
+    return res.result?.data.map(each => ({
+      _id: each._id,
+      name: each.name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' '),
+      price: each.price
+    })) || [];
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return [];
+  }
+};
+
+async function getAllCustomerData() {
+  const bodyRequest = {
+    filter: { status: 'active' },
+    pagination: { page: 0, limit: 1000 }
+  };
+
+  try {
+    const response = await fetch(baseUrlApi + 'customer/table', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyRequest)
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+
+    const res = await response.json();
+    return res.result?.data.map(each => ({
+      _id: each._id,
+      name: each.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' '),
+      price: each.price
+    })) || [];
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return [];
+  }
+};
+
+async function createDataDeposit() {
+  const listWasteType = await getAllWasteTypeData();
+  const listCustomer = await getAllCustomerData();
+
+  let optionWasteType = '';
+  let optionCustomer = '';
+
+  listWasteType.forEach(wt => {
+    optionWasteType += `<option value="${wt._id}">${wt.name}</option>`
+  });
+
+  listCustomer.forEach(customer => {
+    optionCustomer += `<option value="${customer._id}">${customer.name}</option>`
+  });
+  
   const tables = `
     <div class='reset-btn sa'>
-        <button onclick='addMoreInput()'>Add More+</button>
+        <button onclick='addMoreInput(${JSON.stringify(optionWasteType)}, ${JSON.stringify(optionCustomer)})'>Add More+</button>
     </div>
     <table class='sa-input' data-count-input=${inputCount}>
       <tr>
+        <th>
+            Waste Type
+        </th>
+        <td>
+            <select>${optionWasteType}</select>
+        </td>
+      </tr>
+        
+      <tr>
+        <th>
+            Customer
+        </th>
+        <td>
+            <select>${optionCustomer}</select>
+        </td>
+      </tr>
+      
+      <tr>
           <th>
-              Name
+              Weight
           </th>
           <td>
-              <input type="text" value="" placeholder="Name..">    
+              <input type="number" value="" min="0" placeholder="Weight.." onchange="calculateAmount(${inputCount})">    
           </td>
       </tr>
-        <tr>
+
+      <tr>
           <th>
-              Phone
+              Amount
           </th>
           <td>
-              <input type="number" value="" min="0" placeholder="Phone number..">    
+              <input type="number" value="" placeholder="Amount.." readOnly style="color:gray;">    
           </td>
       </tr>
-        <tr>
-          <th>
-              Address
-          </th>
-          <td>
-              <textarea placeholder="Address.."></textarea>
-          </td>
-      </tr>
-        <tr>
-          <th>
-              Decision
-          </th>
-          <td>
-              <select>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </select>
-          </td>
-      </tr>
+     
   </table>
     `;
 
@@ -227,20 +245,20 @@ function createDataCustomer() {
     let bodyRequest = [];
     const element = document.querySelectorAll('.sa-input > tbody');
     element.forEach(e => {
-      const getNameValue = e.querySelectorAll('.sa-input input')[0].value;
-      const getPhoneValue = e.querySelectorAll('.sa-input input')[1].value;
-      const getAdressValue = e.querySelector('.sa-input textarea').value;
-      const getDecisionValue = e.querySelector('.sa-input select').value;
+      const getWasteTypeValue = e.querySelectorAll('.sa-input select')[0].value;
+      const getCustomerValue = e.querySelectorAll('.sa-input select')[1].value;
+      const getWeightValue = e.querySelectorAll('.sa-input input')[0].value;
+      const getAmountValue = e.querySelectorAll('.sa-input input')[1].value;
       bodyRequest.push({
-        full_name: getNameValue.toLowerCase(),
-        phone_number: getPhoneValue ?? 0,
-        address: getAdressValue.toLowerCase(),
-        withdrawal_decision: getDecisionValue.toLowerCase()
+        waste_type: getWasteTypeValue,
+        customer: getCustomerValue,
+        weight: +getWeightValue,
+        amount: +getAmountValue
       });
     });
 
     if (result.isConfirmed) {
-      fetch(baseUrlApi + 'customer', {
+      fetch(baseUrlApi + 'deposit', {
         method: 'POST',  // Change to POST
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: bodyRequest })
@@ -258,7 +276,7 @@ function createDataCustomer() {
               title: 'Successfully created!',
               icon: "success"
             }).then((res) => {
-              filterSorting();
+              filterSorting(undefined, 'same');
             });
           };
         })
@@ -318,7 +336,7 @@ function resetHeadersAndStatus(element, originalText) {
 }
 
 function collectSortingData() {
-  const sorting = { full_name: 'asc' };
+  const sorting = { deposit_date: 'asc' };
   document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(header => {
     const sortStatus = parseInt(header.getAttribute('data-sort'));
     if (sortStatus > 0) {
@@ -400,7 +418,7 @@ function resetFilter() {
 };
 
 // INPUT DATA
-function addMoreInput() {
+function addMoreInput(optionWasteType, optionCustomer) {
   inputCount++;
   document.querySelector('.swal2-html-container').innerHTML += `
     <div data-count-input=${inputCount}>
@@ -410,43 +428,44 @@ function addMoreInput() {
         <button hidden></button>
         <button onclick='deleteInput()'>Delete</button>
     </div>
-      <table class='sa-input' data-count-input=${inputCount}>
+    <table class='sa-input' data-count-input=${inputCount}>
+      <tr>
+        <th>
+            Waste Type
+        </th>
+        <td>
+            <select>${optionWasteType}</select>
+        </td>
+      </tr>
+        
+      <tr>
+        <th>
+            Customer
+        </th>
+        <td>
+            <select>${optionCustomer}</select>
+        </td>
+      </tr>
+      
       <tr>
           <th>
-              Name
+              Weight
           </th>
           <td>
-              <input type="text" value="" placeholder="Name..">    
+              <input type="number" value="" min="0" placeholder="Weight.." onchange="calculateAmount(${inputCount})">    
           </td>
       </tr>
-        <tr>
+
+      <tr>
           <th>
-              Phone
+              Amount
           </th>
           <td>
-              <input type="number" value="" min="0" placeholder="Phone number..">    
+              <input type="number" value="" placeholder="Amount.." readOnly style="color:gray;">    
           </td>
       </tr>
-        <tr>
-          <th>
-              Address
-          </th>
-          <td>
-              <textarea placeholder="Address.."></textarea>
-          </td>
-      </tr>
-        <tr>
-          <th>
-              Decision
-          </th>
-          <td>
-              <select>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </select>
-          </td>
-      </tr>
-    </table> 
+     
+  </table>
   </div>
     `;
 };
@@ -459,6 +478,7 @@ function deleteInput() {
 // FETCH DATA
 function fetchDataTable(bodyRequest) {
   const body = bodyRequest;
+  console.log(bodyRequest)
   tableElement.innerHTML = '';
   const tableElementContainer = document.querySelector('.waste-type-table:nth-child(2) > thead');
   tableElement.innerHTML += `
@@ -468,7 +488,7 @@ function fetchDataTable(bodyRequest) {
         </td>
     </tr>
     `;
-  fetch(baseUrlApi + 'customer/table', {
+  fetch(baseUrlApi + 'deposit/table', {
     method: 'POST',  // Change to POST
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
@@ -479,32 +499,28 @@ function fetchDataTable(bodyRequest) {
       tableElement.querySelector('#loading').remove();
       if (dataTable?.length) {
         dataTable.forEach((element, index) => {
-          let nameConvert = element.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
-          let addressConvert = element.address[0].toUpperCase() + element.address.slice(1);
-
-          if (nameConvert.length > 20) nameConvert = nameConvert.slice(0, 20) + '...';
-          if (addressConvert.length > 20) addressConvert = addressConvert.slice(0, 20) + '...';
+          let customerNameConvert = element.customer.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
+          let wasteTypeConvert = element.waste_type.name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
           const statusConvert = element.status[0].toUpperCase() + element.status.slice(1);
-          const depositConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.balance.deposit);
-          const withdrawConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.balance.withdrawal);
-          const decisionConvert = element.withdrawal_decision[0].toUpperCase() + element.withdrawal_decision.slice(1);
+          const withdrawalConvert = element.withdrawal_status[0].toUpperCase() + element.withdrawal_status.slice(1);
+          const amountConvert = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(element.amount);
           const parsedElement = JSON.stringify(element).replace(/"/g, "'");
+          const deleteBtn = `<img src="img/asset-14.png" onclick="deleteDataDeposit(${parsedElement})"/>`;
 
+          if (customerNameConvert.length > 20) customerNameConvert = customerNameConvert.slice(0, 20) + '...';
+      
           let newElement = '<tr>';
-          // newElement += `<td style="text-align: center;"> ${index+1}</td>`;
-          newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${nameConvert}</td>`;
-          newElement += `<td>${element.phone_number !== 'unknown' ? element.phone_number : '-'}</td>`;
-          newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${addressConvert}</td>`;
-          newElement += `<td>${depositConvert}</td>`;
-          newElement += `<td>${withdrawConvert}</td>`;
-          newElement += `<td>${element.join_date}</td>`;
-          newElement += `<td style="text-align: center;">${decisionConvert}</td>`;
+          newElement += `<td>${element.deposit_date}</td>`;
+          newElement += `<td>${amountConvert}</td>`;
+          newElement += `<td style="text-align: right;">${element.weight} kg</td>`;
+          newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${wasteTypeConvert}</td>`;
+          newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${customerNameConvert}</td>`;
+          newElement += `<td style="text-align: center;">${withdrawalConvert}</td>`;
           newElement += `<td style="text-align: center;">${statusConvert}</td>`;
           newElement += `
                 <td style="text-align: center;">
-                    <img src="img/asset-15.png" onclick="editDataCustomer(${parsedElement})"/>
-                    <img src="img/asset-14.png" onclick="deleteDataCustomer(${parsedElement})"/>
-                    <img src="img/asset-16.png" onclick="getDetailCustomer(${parsedElement})"/>
+                    ${element.status === 'active' ? deleteBtn : ''}
+                    <img src="img/asset-16.png" onclick="getDetailDeposit(${parsedElement})"/>
                 </td>`;
 
           newElement += '</tr>';
@@ -514,7 +530,7 @@ function fetchDataTable(bodyRequest) {
       } else {
         tableElement.innerHTML += `
             <tr>
-                <td colspan='10' style='text-align:center; padding: 20px;'>No result.</td>
+                <td colspan='8' style='text-align:center; padding: 20px;'>No result.</td>
             </tr>
             `;
       };

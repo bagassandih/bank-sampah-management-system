@@ -5,7 +5,8 @@ async function getDeposit(req, res) {
     try {
         const { filter, sorting, pagination } = req.body;
         const dataDeposits = await services.getDataDeposit(filter, sorting, pagination);
-        res.status(200).json({ dataDeposits });
+        const result = { data: dataDeposits, full_name: req.user?.full_name ?? null };
+        res.status(200).json({ result });
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message });
@@ -44,8 +45,15 @@ async function deleteDeposit(req, res) {
     }
 };
 
+async function depositPage(req, res) {
+    const auth = req.user?.full_name;
+    if (!auth) return res.redirect('/');
+    res.render('deposit', { full_name: auth });
+};
+
 module.exports = {
     getDeposit,
     createDeposit,
-    deleteDeposit
+    deleteDeposit,
+    depositPage
 };

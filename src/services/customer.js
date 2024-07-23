@@ -170,7 +170,7 @@ async function getProfileCustomer(id) {
     } catch (error) {
         throw { status: error.status ?? 400, message: error.message };
     }
-}
+};
 
 module.exports = {
     getDataCustomer,

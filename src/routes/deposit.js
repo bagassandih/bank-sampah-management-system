@@ -5,7 +5,8 @@ const adminController = require('../controllers/admin');
 const router = express.Router();
 
 // Sub route / for Deposit
-router.get('/', adminController.auth, depositController.getDeposit);
+router.get('/', adminController.auth, depositController.depositPage);
+router.post('/table', adminController.auth, depositController.getDeposit);
 router.post('/', adminController.auth, depositController.createDeposit);
 router.delete('/', adminController.auth, depositController.deleteDeposit);
 

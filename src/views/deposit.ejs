@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer</title>
+    <title>Deposit</title>
     <link rel="stylesheet" href="../css/styles-backup.css">
 </head>
 
@@ -15,15 +15,17 @@
                 <%- include('./component/header.ejs') %>
                 <div onclick="toggleSidebarClose()">
 
-                    <h1>Customer</h1>
+                    <h1>Deposit</h1>
                     <p class="after-title">
-                        Manage customers, you can change or edit the data, delete them, and also edit them. 
-                        The name is unique, where it cannot be the same as other data or duplicated, and you can add more than one data at once.
+                      Manage customer deposits with the ability to create and delete data only, 
+                      as transaction data is considered absolute and cannot be altered. 
+                      Each deposit entry will be grouped by month, regardless of the date it is entered, 
+                      and will ultimately be categorized according to the corresponding month.
                     </p>
                     <section class="waste-type">    
                         
                         <div class="reset-btn">
-                            <button onclick="createDataCustomer()">Add+</button>
+                            <button onclick="createDataDeposit()">Add+</button>
                             <button onclick="resetFilter()">Reset</button>
                         </div>
                         <section class="waste-type-container">    
@@ -31,53 +33,47 @@
                                 <thead>
                                     <tr>
                                         <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="full_name">
-                                                Name
-                                            </div>
-                                            <input type="text" placeholder="Search.." name="full_name" oninput="filterSorting(undefined, 'same')">
+                                          <div onclick="filterSorting(this, 'same')" data-sort=0 name="deposit_date">
+                                              Deposit Date
+                                          </div>
+                                          <input type="date" placeholder="Search.." name="deposit_date" oninput="filterSorting(undefined, 'same')">
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="phone_number">
-                                                Phone
-                                            </div>
-                                            <input type="text" placeholder="Search.." name="phone_number" oninput="filterSorting(undefined, 'same')">
+                                          <div onclick="filterSorting(this, 'same')" data-sort=0 name="amount">
+                                              Amount
+                                          </div>
+                                          <div style="display: inline;">
+                                              <input type="number" placeholder="Search.." name="amount" oninput="filterSorting(undefined, 'same')">
+                                          </div>
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="address">
-                                                Address
-                                            </div>
-                                            <input type="text" placeholder="Search.." name="address" oninput="filterSorting(undefined, 'same')">
+                                          <div onclick="filterSorting(this, 'same')" data-sort=0 name="weight">
+                                              Weight
+                                          </div>
+                                          <div style="display: inline;">
+                                              <input type="number" placeholder="Search.." name="weight" oninput="filterSorting(undefined, 'same')">
+                                          </div>
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="balance.deposit">
-                                                Deposit
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="waste_type">
+                                                Waste Type
                                             </div>
-                                            <div style="display: inline;">
-                                                <input type="number" placeholder="Search.." name="balance.deposit" oninput="filterSorting(undefined, 'same')">
-                                            </div>
+                                            <input type="text" placeholder="Search.." name="waste_type" oninput="filterSorting(undefined, 'same')">
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="balance.withdrawal">
-                                                Withdrawal
-                                            </div>
-                                            <div style="display: inline;">
-                                                <input type="number" placeholder="Search.." name="balance.withdrawal" oninput="filterSorting(undefined, 'same')">
-                                            </div>
+                                          <div onclick="filterSorting(this, 'same')" data-sort=0 name="customer">
+                                              Customer
+                                          </div>
+                                          <input type="text" placeholder="Search.." name="customer" oninput="filterSorting(undefined, 'same')">
                                         </th>
                                         <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="join_date">
-                                                Join Date
+                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="withdrawal_status">
+                                              Withdrawal
                                             </div>
-                                            <input type="date" placeholder="Search.." name="join_date" oninput="filterSorting(undefined, 'same')">
-                                        </th>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="withdrawal_decision">
-                                                Decision
-                                            </div>
-                                            <select id="filter-status" name="withdrawal_decision" oninput="filterSorting(undefined, 'same')">
+                                            <select id="filter-status" name="withdrawal_status" oninput="filterSorting(undefined, 'same')">
                                                 <option value="">All</option>
-                                                <option value="yes">Yes</option>
-                                                <option value="no">No</option>
+                                                <option value="ready">Ready</option>
+                                                <option value="done">Done</option>
                                             </select>
                                         </th>
                                         <th>
@@ -92,7 +88,7 @@
                                         <th class="th-action">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="data-table-customer">
+                                <tbody id="data-table-deposit">
                                   
                                 </tbody>
                             </table>
@@ -113,7 +109,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/sidebar.js"></script>
-    <script src="./js/customer.js"></script>
+    <script src="./js/deposit.js"></script>
 </body>
 
 </html>

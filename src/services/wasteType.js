@@ -7,7 +7,7 @@ async function getDataWasteType(filter, sorting, pagination) {
     // initiate query 
     let queryFilter = { };
     let querySorting = { name: 'asc' };
-    if (pagination.page > 0) pagination.page -= 1; 
+    if (pagination?.page > 0) pagination.page -= 1; 
     // if (pagination.page === 1) pagination.page = 0;
     const limit = pagination && pagination.limit || 10;
     const skip = limit * (pagination && pagination.page || 0);
@@ -34,11 +34,11 @@ async function getDataWasteType(filter, sorting, pagination) {
       // handle filter price
       if (filter.price !== undefined) {
         //default operator
-        let operator = filter.price;
+        let operator = +filter.price;
         // handle filter balance by range
         if (filter.price_range) {
-          if (filter.price_range === 'less_than') operator = { $lt: filter.price };
-          if (filter.price_range === 'more_than') operator = { $gt: filter.price };
+          if (filter.price_range === 'less_than') operator = { $lt: +filter.price };
+          if (filter.price_range === 'more_than') operator = { $gt: +filter.price };
         };
         filter.price = operator;
       };

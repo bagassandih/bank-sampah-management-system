@@ -8,6 +8,7 @@ async function getDataDeposit(filter, sorting, pagination) {
   try {
     // initiate query for aggregate
     let queryAggregate = [];
+    if (pagination?.page > 0) pagination.page -= 1; 
     const limit = pagination && pagination.limit || 10;
     const skip = limit * (pagination && pagination.page || 0);
     const refCollection = ['customer', 'waste_type'];
@@ -25,17 +26,17 @@ async function getDataDeposit(filter, sorting, pagination) {
         $unwind: '$' + eachCollection + '_populate'
       });
     };
-
+  
     // handle filter
     if (filter && Object.keys(filter).length > 0) {
       // handle filter that contains ref to another collection
       if (filter.customer) {
-        if (!filter.customer.full_name) throw { status: 400, message: 'only full_name for filter customer' };
+        if (!filter.customer) throw { status: 400, message: 'only full_name for filter customer' };
         // for customer in deposit, only full name
         queryAggregate.push(
           {
             $match:
-              { 'customer_populate.full_name': { $regex: filter.customer.full_name, $options: 'i' } }
+              { 'customer_populate.full_name': { $regex: filter.customer, $options: 'i' } }
           });
       } 
       if (filter.waste_type) {
@@ -65,7 +66,7 @@ async function getDataDeposit(filter, sorting, pagination) {
         let queryMatch = {
           $match: {}
         };
-        queryMatch.$match.weight = filter.weight;
+        queryMatch.$match.weight = +filter.weight;
         if (filter.weight_range === 'more_than') queryMatch.$match.weight = { $gt: filter.weight };
         if (filter.weight_range === 'less_than') queryMatch.$match.weight = { $lt: filter.weight };
         queryAggregate.push(queryMatch);
@@ -75,7 +76,7 @@ async function getDataDeposit(filter, sorting, pagination) {
          let queryMatch = {
           $match: {}
         };
-        queryMatch.$match.amount = filter.amount;
+        queryMatch.$match.amount = +filter.amount;
         if (filter.amount_range === 'more_than') queryMatch.$match.amount = { $gt: filter.amount };
         if (filter.amount_range === 'less_than') queryMatch.$match.amount = { $lt: filter.amount };
         queryAggregate.push(queryMatch);
@@ -107,6 +108,14 @@ async function getDataDeposit(filter, sorting, pagination) {
         queryMatch.$match.status = filter.status;
         queryAggregate.push(queryMatch);
       };
+
+      if (filter.withdrawal_status) {
+        let queryMatch = {
+          $match: {}
+        };
+        queryMatch.$match.withdrawal_status = filter.withdrawal_status;
+        queryAggregate.push(queryMatch);
+      };
     };
 
 
@@ -124,18 +133,18 @@ async function getDataDeposit(filter, sorting, pagination) {
 
       for (const eachSorting in sorting) {
         if (!sorting[eachSorting]) throw { status: 400, message: 'sorting ' + eachSorting + ' is empty' };
-        let sortValue = sorting[eachSorting] === 'asc' ? 1 : -1;
+        let sortValue = sorting[eachSorting] === 'asc' ? 1 : sorting[eachSorting];
 
         if (eachSorting === 'customer') {
           // set value asc or desc
-          sortValue = sorting[eachSorting].full_name === 'asc' ? 1 : -1;
+          sortValue = sorting.customer.full_name = sorting[eachSorting] === 'asc' ? 1 : sorting[eachSorting];
           // set field to lower
           queryAddFields.$addFields.sortField.$toLower = 'customer_populate.full_name';
           // set field that want to sorting
           querySort.$sort['customer_populate.full_name'] = sortValue;
         } else if (eachSorting === 'waste_type') {
           // set value asc or desc
-          sortValue = sorting[eachSorting].name === 'asc' ? 1 : -1;
+          sortValue = sorting.waste_type.name = sorting[eachSorting] === 'asc' ? 1 : sorting[eachSorting];
           // set field to lower
           queryAddFields.$addFields.sortField.$toLower = 'waste_type_populate.name';
           // set field that want to sorting
@@ -148,7 +157,6 @@ async function getDataDeposit(filter, sorting, pagination) {
         queryAggregate.push(queryAddFields, querySort);
       }
     };
-  
     // dont display the old populate data
     queryAggregate.push(
       {
@@ -158,11 +166,15 @@ async function getDataDeposit(filter, sorting, pagination) {
         $project: { 'customer_populate': 0, 'waste_type_populate': 0 }
       }
     );
-
-    return await depositModel
+    const result = await depositModel
       .aggregate(queryAggregate)
       .skip(skip)
-      .limit(limit)
+      .limit(limit);
+
+    return result.map(data => ({
+      ...data,
+      deposit_date: moment(data.deposit_date).format('LL')
+    }));
 
   } catch (error) {
     throw { status: 400, message: error.message };
@@ -219,7 +231,7 @@ async function deleteDataDeposit(id) {
       { status: 'deleted', }
     );
     
-    await wasteTypeModel.findByIdAndUpdate(eachInput.waste_type,
+    await wasteTypeModel.findByIdAndUpdate(getDataDeposit.waste_type,
       { $inc: { deposit_count: -1 } }
     );
 
