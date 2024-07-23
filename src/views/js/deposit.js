@@ -480,7 +480,6 @@ function fetchDataTable(bodyRequest) {
   const body = bodyRequest;
   console.log(bodyRequest)
   tableElement.innerHTML = '';
-  const tableElementContainer = document.querySelector('.waste-type-table:nth-child(2) > thead');
   tableElement.innerHTML += `
     <tr id='loading'>
         <td colspan='7' style='text-align: center;'>
@@ -498,6 +497,7 @@ function fetchDataTable(bodyRequest) {
       const dataTable = res.result?.data;
       tableElement.querySelector('#loading').remove();
       if (dataTable?.length) {
+        setChart(dataTable);
         dataTable.forEach((element, index) => {
           let customerNameConvert = element.customer.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
           let wasteTypeConvert = element.waste_type.name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
@@ -536,3 +536,58 @@ function fetchDataTable(bodyRequest) {
       };
     });
 };
+
+// CHART
+async function setChart(rawData) {
+  const rawDataDeposit = rawData;
+  let rawDataset = [];
+  
+  rawDataDeposit.forEach(deposit => {
+    const getMonth = moment(deposit.deposit_date).format('MMMM');
+    let checkMonth = rawDataset.find(data => data.month === getMonth);
+    if (!checkMonth) {
+      checkMonth = { month: getMonth, customers: [] };
+      rawDataset.push(checkMonth);
+    };
+    checkMonth.customers.push({ id: deposit.customer, amount: deposit.amount });
+  })
+
+  let dataDeposit = {
+    labels:  rawDataset.map(data => data.month),
+    datasets: [{
+        label: 'Total Deposit',
+        data: rawDataset.map(data => data.customers.reduce((acc, current) => acc + current.amount, 0)),
+        fill: true,
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgb(75, 192, 192, 0.2)',
+        borderWidth: 2
+    }]
+  };
+  
+  const configDeposit = {
+    type: 'line',
+    data: dataDeposit,
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                display: true,
+                title: {
+                    display: false,
+                    text: 'Month'
+                }
+            },
+            y: {
+                display: true,
+                title: {
+                    display: false,
+                    text: 'Amount'
+                }
+            }
+        }
+    }
+  };
+  
+  const ctxDeposit = document.getElementById('lineChartCustomer').getContext('2d');
+  new Chart(ctxDeposit, configDeposit);
+}
