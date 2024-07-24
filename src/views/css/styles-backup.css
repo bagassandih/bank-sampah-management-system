@@ -934,7 +934,7 @@ header {
   }
   
   .counter-item > .number {
-    font-size: 5rem;
+    font-size: 4rem;
   }
   
   .counter-item > .notes {
@@ -955,8 +955,7 @@ header {
     flex-direction: column;
     display: flex;
     align-items: center;
-    margin: 0px;
-  
+    margin: 0;
   }
 
   .chart-container > div {

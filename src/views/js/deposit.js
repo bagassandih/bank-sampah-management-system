@@ -399,7 +399,7 @@ function resetFilter() {
         getText.setAttribute('data-sort', 0);
         resetHeadersAndStatus(each, getText.innerText.replace(/[↓↑]/g, ''));
       }
-      // console.log(each.innerText)
+
       const inputElement = each.querySelector('input, div > input') ?? null;
       inputElement ? inputElement.value = '' : null
       
@@ -478,11 +478,10 @@ function deleteInput() {
 // FETCH DATA
 function fetchDataTable(bodyRequest) {
   const body = bodyRequest;
-  console.log(bodyRequest)
   tableElement.innerHTML = '';
   tableElement.innerHTML += `
     <tr id='loading'>
-        <td colspan='7' style='text-align: center;'>
+        <td colspan='8' style='text-align: center;'>
             <img src='https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-05-37_512.gif' width='25%'/>
         </td>
     </tr>
@@ -497,7 +496,8 @@ function fetchDataTable(bodyRequest) {
       const dataTable = res.result?.data;
       tableElement.querySelector('#loading').remove();
       if (dataTable?.length) {
-        setChart(dataTable);
+        setLineChart(dataTable);
+        setDougChart(dataTable);
         dataTable.forEach((element, index) => {
           let customerNameConvert = element.customer.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
           let wasteTypeConvert = element.waste_type.name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
@@ -538,7 +538,7 @@ function fetchDataTable(bodyRequest) {
 };
 
 // CHART
-async function setChart(rawData) {
+async function setLineChart(rawData) {
   const rawDataDeposit = rawData;
   let rawDataset = [];
   
@@ -588,6 +588,85 @@ async function setChart(rawData) {
     }
   };
   
-  const ctxDeposit = document.getElementById('lineChartCustomer').getContext('2d');
+  const ctxDeposit = document.getElementById('lineChart-deposit').getContext('2d');
   new Chart(ctxDeposit, configDeposit);
-}
+};
+
+async function changeYear(year) {
+  const body = {
+    filter: { 
+      status: 'active',
+      deposit_chart: `${year}-07-24T05:01:37.986Z`
+    },
+    pagination: {
+      page: 0,
+      limit: 1000
+    }
+  };
+
+  const response = await fetch(baseUrlApi + 'deposit/table', {
+    method: 'POST',  // Change to POST
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch data');
+  };
+
+  const data = await response.json();
+
+  document.getElementById('lineChart-deposit').remove();
+  document.getElementById('doughChart-deposit').remove();
+
+  const canvasLine = document.createElement('canvas');
+  canvasLine.id = 'lineChart-deposit';
+  document.querySelectorAll('.chart-deposit')[0].appendChild(canvasLine);
+
+  const canvasDough = document.createElement('canvas');
+  canvasDough.id = 'doughChart-deposit';
+  document.querySelectorAll('.chart-customer')[0].appendChild(canvasDough);
+  
+  setLineChart(data.result.data);
+  setDougChart(data.result.data);
+};
+
+async function setDougChart(rawData) {
+  const rawDataDeposit = rawData;
+  let rawDataset = [];
+  
+  rawDataDeposit.forEach(deposit => {
+    const getMonth = moment(deposit.deposit_date).format('MMMM');
+    let checkMonth = rawDataset.find(data => data.month === getMonth);
+    if (!checkMonth) {
+      checkMonth = { month: getMonth, customers: [] };
+      rawDataset.push(checkMonth);
+    };
+    checkMonth.customers.push({ id: deposit.customer, amount: deposit.amount });
+  });
+
+  const dataCustomer = {
+    labels: rawDataset.map(data => data.month),
+    datasets: [{
+        label: 'Customers Active',
+        data: rawDataset.map(data => data.customers.length),
+        backgroundColor: [
+            'rgb(54, 162, 235, 0.8)',
+            'rgb(104, 162, 235, 0.8)',
+            'rgb(154, 162, 235, 0.8)',
+            'rgb(204, 162, 235, 0.8)',
+            'rgb(254, 162, 235, 0.8)',
+            'rgb(54, 162, 235, 0.8)',
+        ],
+        hoverOffset: 2
+    }]
+  };
+
+  const configCustomer = {
+    type: 'doughnut',
+    data: dataCustomer,
+  };
+
+  const ctxCustomer = document.getElementById('doughChart-deposit').getContext('2d');
+  new Chart(ctxCustomer, configCustomer);
+};

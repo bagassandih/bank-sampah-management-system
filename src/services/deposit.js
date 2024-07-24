@@ -6,13 +6,12 @@ const moment = require('moment');
 
 async function getDataDeposit(filter, sorting, pagination) {
   try {
-    // initiate query for aggregate
+    // initiate variables
     let queryAggregate = [];
     if (pagination?.page > 0) pagination.page -= 1; 
     const limit = pagination && pagination.limit || 10;
     const skip = limit * (pagination && pagination.page || 0);
     const refCollection = ['customer', 'waste_type'];
-
     // for default, lookup the other collections
     for (const eachCollection of refCollection) {
       queryAggregate.push({
@@ -29,6 +28,20 @@ async function getDataDeposit(filter, sorting, pagination) {
   
     // handle filter
     if (filter && Object.keys(filter).length > 0) {
+      // handle filter for chart deposit
+      if (filter.deposit_chart) {
+        const startCurrentDate = moment(filter.deposit_chart).startOf('year');
+        const endCurrentDate = moment(filter.deposit_chart).endOf('year');
+        const operatorCurrentDate = {
+          $gte: new Date(startCurrentDate),
+          $lt: new Date(endCurrentDate)
+        };
+        
+        queryAggregate.push({
+          $match: { deposit_date: operatorCurrentDate }
+        });
+      };
+
       // handle filter that contains ref to another collection
       if (filter.customer) {
         if (!filter.customer) throw { status: 400, message: 'only full_name for filter customer' };
