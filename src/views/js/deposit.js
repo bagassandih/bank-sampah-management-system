@@ -550,7 +550,15 @@ async function setLineChart(rawData) {
       rawDataset.push(checkMonth);
     };
     checkMonth.customers.push({ id: deposit.customer, amount: deposit.amount });
-  })
+  });
+
+  let totalData = rawDataDeposit.length;
+  let totalDeposit = rawDataDeposit.reduce((acc, current) => acc + current.amount, 0);
+  let totalWeight = rawDataDeposit.reduce((acc, current) => acc + current.weight, 0);
+
+  document.querySelectorAll('.counter-item > .number')[0].innerText = formatNumber(totalData);
+  document.querySelector('.counter-item > .number-deposit').innerText = formatNumber(totalDeposit);
+  document.querySelectorAll('.counter-item > .number')[1].innerText = formatNumber(totalWeight);
 
   let dataDeposit = {
     labels:  rawDataset.map(data => data.month),

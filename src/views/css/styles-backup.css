@@ -201,7 +201,6 @@ header {
 .counter-container {
   display: flex;
   background-color: white;
-  padding: 20px;
   margin-bottom: 20px;
   border-radius: 10px;
 }
@@ -211,6 +210,7 @@ header {
   flex-direction: column;
   justify-content: space-evenly;
   padding: 25px;
+  width: 95%;
 }
 
 .counter-item > div > h2 {
@@ -297,7 +297,6 @@ header {
 
 .waste-type-table {
   width: 100%; 
-  /* margin: auto; */
   padding: 10px 0px;
   overflow: auto;
 }
@@ -920,6 +919,7 @@ header {
   .counter-container {
     flex-direction: column;
     justify-content: center;
+    padding: 25px;
   }
 
   .counter-box {

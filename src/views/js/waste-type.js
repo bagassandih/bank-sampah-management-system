@@ -5,7 +5,7 @@ let timeout;
 let inputCount = 1;
 
 filterSorting(undefined, 'same');
-
+summaryData();
 // CRUD
 function createDataWasteType() {
   inputCount = 1;
@@ -436,4 +436,29 @@ function fetchDataTable(bodyRequest) {
             `;
       };
     });
+};
+
+// SUMMARY DATA
+function summaryData() {
+  const body = {
+    filter: {
+      status: 'active'
+    },
+    pagination: {
+      page: 0, limit: 1000
+    }
+  };
+  fetch(baseUrlApi + 'waste-type/table', {
+    method: 'POST',  // Change to POST
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(res => res.json())
+  .then(res => {
+    const rawData = res.result.data || [];
+    const totalWasteType = rawData.length;
+    const highestPrice = rawData.map(data => data.price).sort((a, b) => b - a)[0];
+    document.querySelectorAll('.counter-item > .number')[0].innerText = formatNumber(totalWasteType);
+    document.querySelectorAll('.counter-item > .number')[1].innerText = formatNumber(highestPrice);
+  });
 };

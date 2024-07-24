@@ -6,8 +6,9 @@ const adminController = require('../controllers/admin');
 const router = express.Router();
 
 // Sub route / for Withdrawal
-router.get('/', adminController.auth, withdrawalController.getWithdrawal);
+router.get('/', adminController.auth, withdrawalController.withdrawalPage);
 router.post('/', adminController.auth, withdrawalController.createWithdrawal);
+router.post('/table', adminController.auth, withdrawalController.getWithdrawal);
 router.delete('/', adminController.auth, withdrawalController.deleteWithdrawal);
 
 module.exports = router;

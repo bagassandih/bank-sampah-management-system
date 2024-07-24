@@ -5,7 +5,8 @@ async function getWithdrawal(req, res) {
     try {
         const { filter, sorting, pagination } = req.body;
         const dataWithdrawals = await services.getDataWithdrawal(filter, sorting, pagination);
-        res.status(200).json({ dataWithdrawals });
+        const result = { data: dataWithdrawals, full_name: req.user?.full_name ?? null };
+        res.status(200).json({ result });
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message });
@@ -35,8 +36,15 @@ async function deleteWithdrawal(req, res) {
     }
 };
 
+async function withdrawalPage(req, res) {
+    const auth = req.user?.full_name;
+    if (!auth) return res.redirect('/');
+    res.render('withdrawal', { full_name: auth });
+};
+
 module.exports = {
     getWithdrawal,
     createWithdrawal,
-    deleteWithdrawal
+    deleteWithdrawal,
+    withdrawalPage
 };

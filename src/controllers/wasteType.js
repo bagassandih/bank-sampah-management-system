@@ -7,7 +7,6 @@ async function getWasteType(req, res) {
         const dataWasteTypes = await services.getDataWasteType(filter, sorting, pagination);
         const result = { data: dataWasteTypes, full_name: req.user?.full_name ?? null };
         res.status(200).json({ result });
-        // res.render('waste-type', result);
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message });
@@ -18,7 +17,7 @@ async function wasteTypePage(req, res) {
     const auth = req.user?.full_name;
     if (!auth) return res.redirect('/');
     res.render('waste-type', { full_name: auth });
-}
+};
 
 async function createWasteType(req, res) {
     try {

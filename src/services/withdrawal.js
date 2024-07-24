@@ -8,9 +8,10 @@ async function getDataWithdrawal(filter, sorting, pagination) {
   try {
     // initiate query for aggregate
     let queryAggregate = [];
+    if (pagination?.page > 0) pagination.page -= 1; 
     const limit = pagination && pagination.limit || 10;
     const skip = limit * (pagination && pagination.page || 0);
-    const refCollection = ['customer'];
+    const refCollection = ['customer', 'deposit'];
 
     // for default, lookup the other collections
     for (const eachCollection of refCollection) {
@@ -30,12 +31,12 @@ async function getDataWithdrawal(filter, sorting, pagination) {
     if (filter && Object.keys(filter).length > 0) {
       // handle filter that contains ref to another collection
       if (filter.customer) {
-        if (!filter.customer.full_name) throw { status: 400, message: 'only full_name for filter customer' };
+        if (!filter.customer) throw { status: 400, message: 'only full_name for filter customer' };
         // for customer in withdrawal, only full name
         queryAggregate.push(
           {
             $match:
-              { 'customer_populate.full_name': { $regex: filter.customer.full_name, $options: 'i' } }
+              { 'customer_populate.full_name': { $regex: filter.customer, $options: 'i' } }
           });
       }; 
       
@@ -47,7 +48,7 @@ async function getDataWithdrawal(filter, sorting, pagination) {
         };
 
         // for collection waste_type only name and price(with range)
-        let valueMatch = filter.amount; 
+        let valueMatch = +filter.amount; 
         if (filter.amount_range === 'more_than') valueMatch = { $gt: filter.amount };
         if (filter.amount_range === 'less_than') valueMatch = { $lt: filter.amount };
         queryMatch.$match.amount = valueMatch;
@@ -55,15 +56,15 @@ async function getDataWithdrawal(filter, sorting, pagination) {
       };
 
       //  filter amount
-      if (filter.date) {
+      if (filter.createdAt) {
         // for waste type in deposit only fields name and price(with range_price for optional)
         let queryMatch = {
           $match: {}
         };
 
         // get only month from date
-        const startDate = moment(filter.date, 'YYYY-MM-DD').startOf('month');
-        const endDate = moment(filter.date, 'YYYY-MM-DD').endOf('month');
+        const startDate = moment(filter.createdAt, 'YYYY-MM-DD').startOf('month');
+        const endDate = moment(filter.createdAt, 'YYYY-MM-DD').endOf('month');
 
         let operator = {
           $gte: new Date(startDate),
@@ -75,6 +76,15 @@ async function getDataWithdrawal(filter, sorting, pagination) {
         if (filter.date_range === 'more_than') valueMatch = { $gt: new Date(endDate) };
         if (filter.date_range === 'less_than') valueMatch = { $lt: new Date(startDate) };
         queryMatch.$match.createdAt = valueMatch;
+        queryAggregate.push(queryMatch);
+      };
+
+      // filter status
+      if (filter.status) {
+        let queryMatch = {
+          $match: {}
+        };
+        queryMatch.$match.status = filter.status;
         queryAggregate.push(queryMatch);
       };
     };
@@ -92,13 +102,12 @@ async function getDataWithdrawal(filter, sorting, pagination) {
       let querySort = { $sort: {} };
 
       for (const eachSorting in sorting) {
-        console.log(sorting[eachSorting], eachSorting)
         if (!sorting[eachSorting]) throw { status: 400, message: 'sorting ' + eachSorting + ' is empty' };
-        let sortValue = sorting[eachSorting] === 'asc' ? 1 : -1;
+        let sortValue = sorting[eachSorting] === 'asc' ? 1 : sorting[eachSorting];
 
         if (eachSorting === 'customer') {
           // set value asc or desc
-          sortValue = sorting[eachSorting].full_name === 'asc' ? 1 : -1;
+          sortValue = sorting.customer.full_name = sorting[eachSorting] === 'asc' ? 1 : sorting[eachSorting];
           // set field to lower
           queryAddFields.$addFields.sortField.$toLower = 'customer_populate.full_name';
           // set field that want to sorting
@@ -115,17 +124,23 @@ async function getDataWithdrawal(filter, sorting, pagination) {
     // dont display the old populate data
     queryAggregate.push(
       {
-        $set: { customer: '$customer_populate' }
+        $set: { customer: '$customer_populate', deposit: '$deposit_populate' }
       },
       {
-        $project: { 'customer_populate': 0 }
+        $project: { 'customer_populate': 0, 'deposit_populate': 0 }
       }
     );
 
-    return await withdrawalModel
+    const result = await withdrawalModel
       .aggregate(queryAggregate)
       .skip(skip)
-      .limit(limit)
+      .limit(limit);
+
+    return result.map(data => ({
+      ...data,
+      createdAt: moment(data.createdAt).format('LL')
+    }));
+  
 
   } catch (error) {
     throw { status: 400, message: error.message };
