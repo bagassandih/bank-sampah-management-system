@@ -358,8 +358,7 @@ function fetchDataTable(bodyRequest) {
       const dataTable = res.result?.data;
       tableElement.querySelector('#loading').remove();
       if (dataTable?.length) {
-        setLineChart(dataTable);
-        setDougChart(dataTable);
+        summaryData();
         dataTable.forEach((element, index) => {
           let customerNameConvert = element.customer.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
           let wasteTypeConvert = element.waste_type.name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
@@ -403,6 +402,12 @@ function fetchDataTable(bodyRequest) {
 async function setLineChart(rawData) {
   const rawDataDeposit = rawData;
   let rawDataset = [];
+
+   // REMOVE EXISTING CANVAS
+   document.getElementById('lineChart-deposit').remove();
+   const canvasLine = document.createElement('canvas');
+   canvasLine.id = 'lineChart-deposit';
+   document.querySelectorAll('.chart-deposit')[0].appendChild(canvasLine);
   
   rawDataDeposit.forEach(deposit => {
     const getMonth = moment(deposit.deposit_date).format('MMMM');
@@ -413,14 +418,6 @@ async function setLineChart(rawData) {
     };
     checkMonth.customers.push({ id: deposit.customer, amount: deposit.amount });
   });
-
-  let totalData = rawDataDeposit.length;
-  let totalDeposit = rawDataDeposit.reduce((acc, current) => acc + current.amount, 0);
-  let totalWeight = rawDataDeposit.reduce((acc, current) => acc + current.weight, 0);
-
-  document.querySelectorAll('.counter-item > .number')[0].innerText = formatNumber(totalData);
-  document.querySelector('.counter-item > .number-deposit').innerText = formatNumber(totalDeposit);
-  document.querySelectorAll('.counter-item > .number')[1].innerText = formatNumber(totalWeight);
 
   let dataDeposit = {
     labels:  rawDataset.map(data => data.month),
@@ -485,18 +482,6 @@ async function changeYear(year) {
   };
 
   const data = await response.json();
-
-  document.getElementById('lineChart-deposit').remove();
-  document.getElementById('doughChart-deposit').remove();
-
-  const canvasLine = document.createElement('canvas');
-  canvasLine.id = 'lineChart-deposit';
-  document.querySelectorAll('.chart-deposit')[0].appendChild(canvasLine);
-
-  const canvasDough = document.createElement('canvas');
-  canvasDough.id = 'doughChart-deposit';
-  document.querySelectorAll('.chart-customer')[0].appendChild(canvasDough);
-  
   setLineChart(data.result.data);
   setDougChart(data.result.data);
 };
@@ -505,6 +490,12 @@ async function setDougChart(rawData) {
   const rawDataDeposit = rawData;
   let rawDataset = [];
   
+  // REMOVE EXISTING CANVAS
+  document.getElementById('doughChart-deposit').remove();
+  const canvasDough = document.createElement('canvas');
+  canvasDough.id = 'doughChart-deposit';
+  document.querySelectorAll('.chart-customer')[0].appendChild(canvasDough);
+
   rawDataDeposit.forEach(deposit => {
     const getMonth = moment(deposit.deposit_date).format('MMMM');
     let checkMonth = rawDataset.find(data => data.month === getMonth);
@@ -515,11 +506,16 @@ async function setDougChart(rawData) {
     checkMonth.customers.push({ id: deposit.customer, amount: deposit.amount });
   });
 
+  const getActiveCustomer = rawDataset.map(monthData => {
+    const uniqueCustomers = new Set(monthData.customers.map(customer => customer.id._id));
+    return uniqueCustomers.size;
+  });
+
   const dataCustomer = {
     labels: rawDataset.map(data => data.month),
     datasets: [{
         label: 'Customers Active',
-        data: rawDataset.map(data => data.customers.length),
+        data: getActiveCustomer,
         backgroundColor: [
             'rgb(54, 162, 235, 0.8)',
             'rgb(104, 162, 235, 0.8)',
@@ -539,4 +535,32 @@ async function setDougChart(rawData) {
 
   const ctxCustomer = document.getElementById('doughChart-deposit').getContext('2d');
   new Chart(ctxCustomer, configCustomer);
+};
+
+// SUMMARY DATA
+function summaryData() {
+  const body = {
+    pagination: {
+      page: 0, limit: 1000
+    }
+  };
+  fetch(baseUrlApi + 'deposit/table', {
+    method: 'POST',  // Change to POST
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  .then(res => res.json())
+  .then(res => {
+    const rawData = res.result.data;
+    let totalData = rawData.length;
+    let totalDeposit = rawData.reduce((acc, current) => acc + current.amount, 0);
+    let totalWeight = rawData.reduce((acc, current) => acc + current.weight, 0);
+  
+    document.querySelectorAll('.counter-item > .number')[0].innerText = formatNumber(totalData);
+    document.querySelector('.counter-item > .number-deposit').innerText = formatNumber(totalDeposit);
+    document.querySelectorAll('.counter-item > .number')[1].innerText = formatNumber(totalWeight);
+
+    setLineChart(rawData);
+    setDougChart(rawData);
+  });
 };

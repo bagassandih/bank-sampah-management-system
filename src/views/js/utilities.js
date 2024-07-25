@@ -105,7 +105,7 @@ function collectPagination(paginationType) {
       } else if (paginationType === 'last') {
         const totalData = parseInt(document.getElementsByName('last-page')[0].getAttribute('data-page'));
         const lastPage = Math.ceil(totalData / limit);
-        each.innerText = lastPage;
+        each.innerText = lastPage < 1 ? 1 : lastPage;
         pagination.page = each.innerText;
       } else if (paginationType === 'first') {
         if (activePage <= 1) return false;

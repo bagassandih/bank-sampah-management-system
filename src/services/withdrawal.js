@@ -136,9 +136,11 @@ async function getDataWithdrawal(filter, sorting, pagination) {
       .skip(skip)
       .limit(limit);
 
+    const amountData = await withdrawalModel.countDocuments({ status: filter?.status ?? 'active' });
     return result.map(data => ({
       ...data,
-      createdAt: moment(data.createdAt).format('LL')
+      createdAt: moment(data.createdAt).format('LL'),
+      amount_data: amountData
     }));
   
 
@@ -147,9 +149,10 @@ async function getDataWithdrawal(filter, sorting, pagination) {
   }
 };
 
-async function createDataWithdrawal(date) {
+async function createDataWithdrawal(date, creatorId) {
   try {
-
+    const checkMonth = moment().format('MMMM');
+    if (checkMonth !== 'December') throw { status: 404, message: 'withdrawal only in December' };
     const startDate = moment(date, 'YYYY-MM-DD').startOf('month');
     const endDate = moment(date, 'YYYY-MM-DD').endOf('month');
 
@@ -188,7 +191,8 @@ async function createDataWithdrawal(date) {
       await withdrawalModel.create({
         amount: eachDeposit.amount,
         customer: eachDeposit.customer,
-        deposit: eachDeposit._id
+        deposit: eachDeposit._id,
+        creator: creatorId
       });
 
       // update deposit status

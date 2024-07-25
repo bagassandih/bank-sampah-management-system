@@ -1,7 +1,7 @@
 <header>
   <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
   <div class="user-info">
-      <span><%- full_name %></span>
+      <span><%- full_name ?? '<a href="/login"> Login </a>' %></span>
       <button class="lang-btn">EN</button>
   </div>
 </header>

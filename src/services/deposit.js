@@ -184,9 +184,11 @@ async function getDataDeposit(filter, sorting, pagination) {
       .skip(skip)
       .limit(limit);
 
+    const amountData = await depositModel.countDocuments({ status: filter?.status ?? 'active' });   
     return result.map(data => ({
       ...data,
-      deposit_date: moment(data.deposit_date).format('LL')
+      deposit_date: moment(data.deposit_date).format('LL'),
+      amount_data: amountData
     }));
 
   } catch (error) {

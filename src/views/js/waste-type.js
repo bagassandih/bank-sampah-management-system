@@ -4,7 +4,6 @@ let timeout;
 let inputCount = 1;
 
 filterSorting(undefined, 'same');
-summaryData();
 
 // CRUD
 function createDataWasteType() {
@@ -261,6 +260,7 @@ function fetchDataTable(bodyRequest) {
       const dataTable = res.result?.data;
       tableElement.querySelector('#loading').remove();
       if (dataTable?.length) {
+        summaryData();
         dataTable.forEach((element, index) => {
           const nameConvert = element.name[0].toUpperCase() + element.name.slice(1);
           const statusConvert = element.status[0].toUpperCase() + element.status.slice(1);
@@ -268,7 +268,6 @@ function fetchDataTable(bodyRequest) {
           const parsedElement = JSON.stringify(element).replace(/"/g, "'");
 
           let newElement = '<tr>';
-          // newElement += `<td style="text-align: center;"> ${index+1}</td>`;
           newElement += `<td>${nameConvert}</td>`;
           newElement += `
                 <td>

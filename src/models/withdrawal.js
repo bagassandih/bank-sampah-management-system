@@ -21,10 +21,11 @@ const withdrawalSchema = new mongoose.Schema({
     enum: ['active', 'deleted'],
     default: 'active'
   },
-  delete_reason: {
-    type: String,
-    default: ''
-  }
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true
+}
 }, {
   timestamps: true
 });

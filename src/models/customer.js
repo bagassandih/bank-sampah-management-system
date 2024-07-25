@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const customerSchema = new mongoose.Schema({
     full_name: {
         type: String,
-        required: true
+        required: true,
+        lowercase: true 
     },
     address: {
         type: String,
-        default: 'Unknown'
+        default: 'Unknown',
+        lowercase: true
     },
     phone_number: {
         type: String,
@@ -38,6 +40,11 @@ const customerSchema = new mongoose.Schema({
     join_date: {
         type: Date, 
         default: new Date()
+    },
+    creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+        required: true
     }
 });
 

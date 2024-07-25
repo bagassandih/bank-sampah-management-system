@@ -18,7 +18,7 @@ async function createDeposit(req, res) {
         const { input } = req.body;
         // handle empty value each field
         const inputMap = input.map(eachData => {
-            let noEmptyValue = {};
+            let noEmptyValue = { creator: req.user.id };
             for (const eachField in eachData) {
                 if (eachData[eachField]) noEmptyValue[eachField] = eachData[eachField];
             };

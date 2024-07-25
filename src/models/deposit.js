@@ -37,9 +37,10 @@ const depositSchema = new mongoose.Schema({
     type: Date,
     default: new Date()
   },
-  delete_reason: {
-    type: String,
-    default: ''
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true
   }
 });
 

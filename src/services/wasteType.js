@@ -57,8 +57,7 @@ async function getDataWasteType(filter, sorting, pagination) {
       .limit(limit)
       .lean();
 
-    const amountData = await wasteTypeModel.countDocuments({ status: queryFilter.status ?? 'active' });
-
+    const amountData = await wasteTypeModel.countDocuments({ status: queryFilter?.status ?? 'active' });
     return dataWasteTpe.map(data => ({
       ...data,
       createdAt: moment(data.createdAt).format('LL'),

@@ -8,7 +8,7 @@ async function getDataCustomer(filter, sorting, pagination) {
         // initiate query 
         let queryFilter = {};
         let querySorting = {};
-        if (pagination.page > 0) pagination.page -= 1; 
+        if (pagination?.page > 0) pagination.page -= 1; 
         const limit = pagination && pagination.limit || 10;
         const skip = limit * (pagination && pagination.page || 0);
 
@@ -71,14 +71,17 @@ async function getDataCustomer(filter, sorting, pagination) {
 
         const result = await customerModel
             .find(queryFilter)
+            .populate('creator')
             .sort(querySorting)
             .skip(skip)
             .limit(limit)
             .lean();
 
+        const amountData = await customerModel.countDocuments({ status: queryFilter?.status ?? 'active' });
         return result.map(data => ({
             ...data,
-            join_date: moment(data.join_date).format('LL')
+            join_date: moment(data.join_date).format('LL'),
+            amount_data: amountData
         })); 
 
     } catch (error) {

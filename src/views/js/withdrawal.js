@@ -127,13 +127,8 @@ async function createDataWithdrawal() {
           title: 'Successfully withdrawal!',
           icon: 'success'
         }).then((res) => {
-          // REMOVE EXISTING CANVAS
-          document.getElementById('barChart-withdrawal').remove();
-          const canvasBar = document.createElement('canvas');
-          canvasBar.id = 'barChart-withdrawal';
-          document.querySelectorAll('.chart-deposit')[0].appendChild(canvasBar);
-
           filterSorting(undefined, 'same');
+          setBarChart();
         });
       };
     })
@@ -225,7 +220,13 @@ async function fetchAllData() {
 async function setBarChart() {
   const rawDataWithdrawal = await fetchAllData();
   let rawDataset = [];
-  console.log(rawDataWithdrawal)
+
+  // REMOVE EXISTING CANVAS
+  document.getElementById('barChart-withdrawal').remove();
+  const canvasBar = document.createElement('canvas');
+  canvasBar.id = 'barChart-withdrawal';
+  document.querySelectorAll('.chart-deposit')[0].appendChild(canvasBar);
+
   rawDataWithdrawal.forEach(withdrawal => {
     const getYear = moment(withdrawal.deposit_date).format('YYYY');
     let checkYear = rawDataset.find(data => data.years === getYear);

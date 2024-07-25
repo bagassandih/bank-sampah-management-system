@@ -6,7 +6,8 @@ const wasteTypeSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        trim: true
+        trim: true,
+        lowercase: true 
     },
     price: {
         type: Number,
@@ -23,6 +24,11 @@ const wasteTypeSchema = new mongoose.Schema({
         enum: ['active', 'deleted'],
         default: 'active'
     },
+    creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+        required: true
+    }
 }, { timestamps: true });
 
 // from schema to model

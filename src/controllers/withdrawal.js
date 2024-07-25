@@ -17,7 +17,7 @@ async function createWithdrawal(req, res) {
     try {
         let { date } = req.body;
         if (!date || date === '') date = new Date();
-        const dataWithdrawals = await services.createDataWithdrawal(date);
+        const dataWithdrawals = await services.createDataWithdrawal(date, req.user.id);
         res.status(200).json({ dataWithdrawals });
     } catch (error) {
         console.log(error);

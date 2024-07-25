@@ -4,12 +4,12 @@ let timeout;
 let inputCount = 1;
 
 filterSorting(undefined, 'same');
-summaryData();
 
 // CRUD
 function getDetailCustomer(data) {
   // delete unecesarry field
   delete data.__v;
+  delete data.amount_data;
 
   let htmlData = `<table style='text-align: left; width: 100%; margin: auto;' id='waste-types'>`;
   for (const key in data) {
@@ -27,6 +27,19 @@ function getDetailCustomer(data) {
         htmlData += `<td>${data.balance.withdrawal}</td>`;
         htmlData += '</tr>';
       };
+    } else if (key === 'creator') {
+      if (data[key].username !== undefined) {
+        htmlData += '<tr>';
+        htmlData += `<th>creator_username</th>`;
+        htmlData += `<td>${data.creator.username}</td>`;
+        htmlData += '</tr>';
+      }; 
+      if (data[key]._id !== undefined) {
+        htmlData += '<tr>';
+        htmlData += `<th>creator_id</th>`;
+        htmlData += `<td>${data.creator._id}</td>`;
+        htmlData += '</tr>';
+      }
     } else {
       htmlData += `<th>${key}</th>`;
       htmlData += `<td>${data[key]}</td>`;
@@ -340,6 +353,7 @@ function fetchDataTable(bodyRequest) {
       const dataTable = res.result?.data;
       tableElement.querySelector('#loading').remove();
       if (dataTable?.length) {
+        summaryData();
         dataTable.forEach((element, index) => {
           let nameConvert = element.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
           let addressConvert = element.address[0].toUpperCase() + element.address.slice(1);
