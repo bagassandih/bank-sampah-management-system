@@ -1,5 +1,6 @@
 require('dotenv').config();
 const services = require('../services/customer');
+const moment = require('moment');
 
 async function getCustomer(req, res) {
     try {
@@ -60,7 +61,8 @@ async function getProfileCustomer(req, res) {
     try {
         const { id } = req.params;
         const dataProfileCustomer = await services.getProfileCustomer(id);
-        res.status(200).json({ dataProfileCustomer });
+        const result = { data: dataProfileCustomer, full_name: req.user?.full_name ?? null };
+        res.render('profile-customer', result);
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message });

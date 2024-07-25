@@ -183,7 +183,7 @@
                                     <% data.dataHome.rawDataWasteType.forEach(function(wt) { %>
                                         <tr>
                                             <td>
-                                                <%= wt.name %>
+                                                <%= wt.name.split(' ').map(data => data[0].toUpperCase() + data.slice(1)).join(' ') %>
                                             </td>
                                             <td>
                                                 <%= new Intl.NumberFormat('id-ID', { style: 'currency' , currency: 'IDR'}).format(wt.price) %>

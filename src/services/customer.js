@@ -166,9 +166,19 @@ async function updateDataCustomer(id, input) {
 async function getProfileCustomer(id) {
     try {
         if (!id) throw { status: 400, message: 'need input id' };
-        const customerData = await customerModel.find({ _id: id }).lean();
+        const customerData = await customerModel.find({ _id: id }).lean()
+        customerData?.map(data => ({
+            ...data,
+            join_date: moment(data.join_date).format('LL')
+        }));
+
         if (!customerData || !customerData.length) throw { status: 404, message: 'customer not found' };
         const depositData = await depositModel.find({ customer: id }).sort({ deposit_date: -1 }).lean(); 
+        depositData?.map(data => ({
+            ...data,
+            deposit_date: moment(data.deposit_date).format('LL')
+        }));
+
         return { customerData: customerData[0], depositData: depositData };
     } catch (error) {
         throw { status: error.status ?? 400, message: error.message };

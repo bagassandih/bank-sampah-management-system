@@ -20,13 +20,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // setup view engine using ejs
+app.use(express.static(path.join(__dirname, './src/views')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, './src/views'));
-app.use(express.static(path.join(__dirname, './src/views')));
 
 // initiate cookie
 app.use(cookieParser());
-
 app.use('/', mainRoutes);
 
 // Connect db

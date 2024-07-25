@@ -65,7 +65,7 @@
                                             <tr>
                                                 <th>Customer</th>
                                             </tr>
-                                            <% if (data.dataDashboard.lastDataCustomer) { %>
+                                            <% if (Object.keys(data.dataDashboard.lastDataCustomer).length) { %>
                                                 <tr>
                                                     <td>Name</td>
                                                     <td>: <%= data.dataDashboard.lastDataCustomer.full_name %>
@@ -99,7 +99,7 @@
                                             <tr>
                                                 <th>Deposit</th>
                                             </tr>
-                                            <% if (data.dataDashboard.lastDataDeposit) { %>
+                                            <% if (Object.keys(data.dataDashboard.lastDataDeposit).length) { %>
                                                 <tr>
                                                     <td >Amount</td>
                                                     <td>: Rp. <%= data.dataDashboard.lastDataDeposit.amount %>
@@ -133,7 +133,7 @@
                                                 <th colspan="2">Waste Type</th>
                                                 <th></th>
                                             </tr>
-                                            <% if (data.dataDashboard.lastDataWasteType) { %>
+                                            <% if (Object.keys(data.dataDashboard.lastDataWasteType).length) { %>
                                                 <tr>
                                                     <td>Name</td>
                                                     <td>: <%= data.dataDashboard.lastDataWasteType.name %>
@@ -166,7 +166,7 @@
                                             <tr>
                                                 <th>Withdrawal</th>
                                             </tr>
-                                            <% if (data.dataDashboard.lastDataWithdrawal) { %>
+                                            <% if (Object.keys(data.dataDashboard.lastDataWithdrawal).length) { %>
                                             <tr>
                                                 <td>Amount</td>
                                                 <td>: Rp. <%= data.dataDashboard.lastDataWithdrawal.amount %>

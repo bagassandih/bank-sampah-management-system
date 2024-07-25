@@ -9,7 +9,7 @@ async function getDataHome() {
   try {
     let countCustomer = 0;
     let totalDeposit = 0;
-    let countWasteType = 0;
+    let countWasteType = await wasteTypeModel.countDocuments();
 
     let rawDataset = [];
 
@@ -29,13 +29,12 @@ async function getDataHome() {
     }).sort({ deposit_date: 1 }).lean();
     const rawDataWitdhrawal = await withdrawalModel.find().sort({ createdAt: -1 }).lean();
 
-    if (rawDataCustomer?.length) {
+    if (rawDataCustomer.length) {
       // add counter 
       countCustomer = rawDataCustomer.length;
-      countWasteType = rawDataWasteType.length;
 
       // count total deposit
-      rawDataCustomer.forEach(customer => totalDeposit += customer.balance.deposit);
+      rawDataCustomer.forEach(customer => totalDeposit += customer.balance.deposit ?? 0);
 
       // translate
       if (totalDeposit >= 1000) {
@@ -67,14 +66,14 @@ async function getDataHome() {
 
     const lastDataCustomer = rawDataCustomer
       .slice()
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-    const lastDataWithdrawal = rawDataWitdhrawal[0];
+      .sort((a, b) => new Date(b.join_date) - new Date(a.join_date))[0] || {};
+    const lastDataWithdrawal = rawDataWitdhrawal[0] || {};
     const lastDataDeposit = rawDataDeposit
       .slice()
-      .sort((a, b) => new Date(b.deposit_date) - new Date(a.createdAt))[0];
+      .sort((a, b) => new Date(b.deposit_date) - new Date(a.deposit_date))[0] || {};
     const lastDataWasteType = rawDataWasteType
       .slice()
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || {};
 
 
     const dataHome = {
@@ -100,10 +99,10 @@ async function getDataHome() {
       lastDataWasteType
     };
 
-    lastDataCustomer.join_date = moment(lastDataCustomer.join_date).format('ll');
-    lastDataDeposit.deposit_date = moment(lastDataDeposit.deposit_date).format('ll');
-    lastDataWasteType.createdAt = moment(lastDataWasteType.createdAt).format('ll');
-    lastDataWithdrawal.createdAt = moment(lastDataWithdrawal.createdAt).format('ll');
+    if (lastDataCustomer?.join_date) lastDataCustomer.join_date = moment(lastDataCustomer.join_date).format('ll');
+    if (lastDataDeposit?.deposit_date) lastDataDeposit.deposit_date = moment(lastDataDeposit.deposit_date).format('ll');
+    if (lastDataWasteType?.createdAt) lastDataWasteType.createdAt = moment(lastDataWasteType.createdAt).format('ll');
+    if (lastDataWithdrawal?.createdAt) lastDataWithdrawal.createdAt = moment(lastDataWithdrawal.createdAt).format('ll');
 
     return { dataHome, dataDashboard };
   } catch (error) {
