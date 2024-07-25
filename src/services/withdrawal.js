@@ -174,7 +174,7 @@ async function createDataWithdrawal(date) {
       $match: {
         withdrawal_status: 'ready',
         status: 'active',
-        deposit_date: operator,
+        // deposit_date: operator,
         'customer_populate.withdrawal_decision': 'yes'
       }
     }

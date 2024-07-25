@@ -1,5 +1,5 @@
 const tableElement = document.querySelector('#data-table-withdrawal');
-const baseUrlApi = 'http://localhost:3000/';
+
 let timeout;
 let inputCount = 1;
 
@@ -101,297 +101,43 @@ function deleteDataWithdrawal(data) {
 };
 
 async function createDataWithdrawal() {
-  const listWasteType = await getAllWasteTypeData();
-  const listCustomer = await getAllCustomerData();
-
-  let optionWasteType = '';
-  let optionCustomer = '';
-
-  listWasteType.forEach(wt => {
-    optionWasteType += `<option value="${wt._id}">${wt.name}</option>`
-  });
-
-  listCustomer.forEach(customer => {
-    optionCustomer += `<option value="${customer._id}">${customer.name}</option>`
-  });
-  
-  const tables = `
-    <div class='reset-btn sa'>
-        <button onclick='addMoreInput(${JSON.stringify(optionWasteType)}, ${JSON.stringify(optionCustomer)})'>Add More+</button>
-    </div>
-    <table class='sa-input' data-count-input=${inputCount}>
-      <tr>
-        <th>
-            Waste Type
-        </th>
-        <td>
-            <select>${optionWasteType}</select>
-        </td>
-      </tr>
-        
-      <tr>
-        <th>
-            Customer
-        </th>
-        <td>
-            <select>${optionCustomer}</select>
-        </td>
-      </tr>
-      
-      <tr>
-          <th>
-              Weight
-          </th>
-          <td>
-              <input type="number" value="" min="0" placeholder="Weight.." onchange="calculateAmount(${inputCount})">    
-          </td>
-      </tr>
-
-      <tr>
-          <th>
-              Amount
-          </th>
-          <td>
-              <input type="number" value="" placeholder="Amount.." readOnly style="color:gray;">    
-          </td>
-      </tr>
-     
-  </table>
-    `;
-
-  Swal.fire({
-    title: 'Create New Data',
-    html: tables,
-    confirmButtonText: 'Create',
-    confirmButtonColor: 'green',
-    showCancelButton: true,
-  }).then((result) => {
-    let bodyRequest = [];
-    const element = document.querySelectorAll('.sa-input > tbody');
-    element.forEach(e => {
-      const getWasteTypeValue = e.querySelectorAll('.sa-input select')[0].value;
-      const getCustomerValue = e.querySelectorAll('.sa-input select')[1].value;
-      const getWeightValue = e.querySelectorAll('.sa-input input')[0].value;
-      const getAmountValue = e.querySelectorAll('.sa-input input')[1].value;
-      bodyRequest.push({
-        waste_type: getWasteTypeValue,
-        customer: getCustomerValue,
-        weight: +getWeightValue,
-        amount: +getAmountValue
-      });
-    });
-
-    if (result.isConfirmed) {
-      fetch(baseUrlApi + 'deposit', {
-        method: 'POST',  // Change to POST
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: bodyRequest })
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          if (res.status) {
-            Swal.fire({
-              title: "Failed to create!",
-              text: res.message,
-              icon: "error"
-            });
-          } else {
-            Swal.fire({
-              title: 'Successfully created!',
-              icon: "success"
-            }).then((res) => {
-              filterSorting(undefined, 'same');
-            });
-          };
-        })
-    }
-  });
-};
-
-// FILTER SORTING
-function filterSorting(element, paginationType) {
-  const delay = element || paginationType !== 'same' ? 0 : 1000;
-  clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    let sorting = {};
-    let filter = {};
-    let pagination = {};
-
-    if (element) {
-      let status = parseInt(element.getAttribute('data-sort')) || 0;
-      const originalText = element.innerText.replace(/[↓↑]/g, '');
-
-      // Update status
-      status = (status + 1) % 3;
-      resetHeadersAndStatus(element, originalText);
-      updateSortingText(element, originalText, status);
-      element.setAttribute('data-sort', status);
-
-      if (status > 0) {
-        sorting[element.getAttribute('name')] = status === 1 ? 1 : -1;
-      }
-    };
-
-    sorting = { ...sorting, ...collectSortingData() };
-    filter = collectFilterData();
-    pagination = collectPagination(paginationType);
-    fetchDataTable({ filter, sorting, pagination });
-  }, delay);
-};
-
-function updateSortingText(element, originalText, status) {
-  if (element.getAttribute('name').split('-')[1] !== 'page') {
-    element.innerText = originalText;
-    if (status === 1) {
-      element.innerText += '↑';
-    } else if (status === 2) {
-      element.innerText += '↓';
-    }
-  }
-};
-
-function resetHeadersAndStatus(element, originalText) {
-  document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(el => {
-    el.innerText = el.innerText.replace(/[↓↑]/g, '');
-    if (el.innerText !== originalText) {
-      el.setAttribute('data-sort', 0);
-    }
-  });
-}
-
-function collectSortingData() {
-  const sorting = { createdAt: 'asc' };
-  document.querySelectorAll('.waste-type-table > thead > tr > th > div:nth-child(1)').forEach(header => {
-    const sortStatus = parseInt(header.getAttribute('data-sort'));
-    if (sortStatus > 0) {
-      sorting[header.getAttribute('name')] = sortStatus === 1 ? 1 : -1;
-    }
-  });
-  return sorting;
-};
-
-function collectFilterData() {
-  const filter = { status: 'active' };
-  document.querySelectorAll('input, select').forEach(input => {
-    if (input.value && input.getAttribute('name')) {
-      filter[input.getAttribute('name')] = input.value;
-    }
-  });
-  return filter;
-};
-
-// PAGINATION
-function collectPagination(paginationType) {
-  const pagination = {};
-  const limit = 10;
-  const getAllSpanPagination = document.querySelectorAll('.pagination > span');
-  getAllSpanPagination.forEach((each) => {
-    if (each.getAttribute('name') === 'active-page' && paginationType) {
-      let activePage = parseInt(each.innerText);
-      if (paginationType === 'next') {
-        each.innerText = activePage + 1;
-        pagination.page = each.innerText;
-      } else if (paginationType === 'prev') {
-        if (activePage <= 1) return false;
-        each.innerText = activePage - 1;
-        pagination.page = each.innerText;
-      } else if (paginationType === 'last') {
-        const totalData = parseInt(document.getElementsByName('last-page')[0].getAttribute('data-page'));
-        const lastPage = Math.ceil(totalData / limit);
-        each.innerText = lastPage;
-        pagination.page = each.innerText;
-      } else if (paginationType === 'first') {
-        if (activePage <= 1) return false;
-        each.innerText = 1;
-        pagination.page = 1;
+  // const checkMonth = moment().format('MMMM');
+  const checkMonth = moment('2024-12-25T04:57:35.370Z').format('MMMM');
+  if (checkMonth !== 'December') {
+    Swal.fire({
+      title: 'Withdrawals only in December',
+      icon: 'error'
+    })
+  } else {
+    fetch(baseUrlApi + 'withdrawal', {
+      method: 'POST',  // Change to POST
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: moment() })
+    })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.status) {
+        Swal.fire({
+          title: 'Failed to procces!',
+          text: res.message,
+          icon: 'error'
+        });
       } else {
-        pagination.page = activePage;
+        Swal.fire({
+          title: 'Successfully withdrawal!',
+          icon: 'success'
+        }).then((res) => {
+          // REMOVE EXISTING CANVAS
+          document.getElementById('barChart-withdrawal').remove();
+          const canvasBar = document.createElement('canvas');
+          canvasBar.id = 'barChart-withdrawal';
+          document.querySelectorAll('.chart-deposit')[0].appendChild(canvasBar);
+
+          filterSorting(undefined, 'same');
+        });
       };
-
-    }
-  });
-
-  pagination.page = parseInt(pagination.page);
-  pagination.limit = limit;
-  return pagination;
-};
-
-function resetFilter() {
-  document.querySelectorAll('.waste-type-table > thead > tr > th').forEach(each => {
-      if(each.innerText.includes('↑') || each.innerText.includes('↓')) {
-        const getText = each.querySelector('div');
-        getText.setAttribute('data-sort', 0);
-        resetHeadersAndStatus(each, getText.innerText.replace(/[↓↑]/g, ''));
-      }
-
-      const inputElement = each.querySelector('input, div > input') ?? null;
-      inputElement ? inputElement.value = '' : null
-      
-      const selectElement = each.querySelector('select');
-
-      if (selectElement) {
-        const typeSelectElement = selectElement.getAttribute('name');
-        if (typeSelectElement === 'status') {
-          selectElement.value = 'active';
-        } else if (typeSelectElement === 'withdrawal_decision') {
-          selectElement.value = 'yes';
-        }
-      }
-    });
-  filterSorting(undefined, 'reset');
-};
-
-// INPUT DATA
-function addMoreInput(optionWasteType, optionCustomer) {
-  inputCount++;
-  document.querySelector('.swal2-html-container').innerHTML += `
-    <div data-count-input=${inputCount}>
-        <br>
-    <div class='reset-btn sa'>
-        <button hidden></button>
-        <button hidden></button>
-        <button onclick='deleteInput()'>Delete</button>
-    </div>
-    <table class='sa-input' data-count-input=${inputCount}>
-      <tr>
-        <th>
-            Waste Type
-        </th>
-        <td>
-            <select>${optionWasteType}</select>
-        </td>
-      </tr>
-        
-      <tr>
-        <th>
-            Customer
-        </th>
-        <td>
-            <select>${optionCustomer}</select>
-        </td>
-      </tr>
-      
-      <tr>
-          <th>
-              Weight
-          </th>
-          <td>
-              <input type="number" value="" min="0" placeholder="Weight.." onchange="calculateAmount(${inputCount})">    
-          </td>
-      </tr>
-
-      <tr>
-          <th>
-              Amount
-          </th>
-          <td>
-              <input type="number" value="" placeholder="Amount.." readOnly style="color:gray;">    
-          </td>
-      </tr>
-     
-  </table>
-  </div>
-    `;
+    })
+  };
 };
 
 // FETCH DATA
@@ -415,8 +161,7 @@ function fetchDataTable(bodyRequest) {
       const dataTable = res.result?.data;
       tableElement.querySelector('#loading').remove();
       if (dataTable?.length) {
-        setBarChart(dataTable);
-        // setDougChart(dataTable);
+        setBarChart();
         dataTable.forEach((element, index) => {
           let customerNameConvert = element.customer.full_name.split(' ').map(each => each[0].toUpperCase() + each.slice(1)).join(' ');
           const statusConvert = element.status[0].toUpperCase() + element.status.slice(1);;
@@ -451,11 +196,36 @@ function fetchDataTable(bodyRequest) {
     });
 };
 
+async function fetchAllData() {
+  const bodyRequest = {
+    filter: { status: 'active' },
+    pagination: { page: 0, limit: 1000 }
+  };
+
+  try {
+    const response = await fetch(baseUrlApi + 'withdrawal/table', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bodyRequest)
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    };
+
+    const data = await response.json();
+    return data.result.data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return [];
+  }
+};
+
 // CHART
-async function setBarChart(rawData) {
-  const rawDataWithdrawal = rawData;
+async function setBarChart() {
+  const rawDataWithdrawal = await fetchAllData();
   let rawDataset = [];
-  
+  console.log(rawDataWithdrawal)
   rawDataWithdrawal.forEach(withdrawal => {
     const getYear = moment(withdrawal.deposit_date).format('YYYY');
     let checkYear = rawDataset.find(data => data.years === getYear);
@@ -473,7 +243,7 @@ async function setBarChart(rawData) {
 
   document.querySelectorAll('.counter-item > .number')[0].innerText = formatNumber(totalData);
   document.querySelector('.counter-item > .number-deposit').innerText = formatNumber(totalWithdrawal);
-  document.querySelectorAll('.counter-item > .number')[1].innerText =formatNumber(totalYears);
+  document.querySelectorAll('.counter-item > .number')[1].innerText = formatNumber(totalYears);
 
   const dataWasteType = {
     labels: rawDataset.map(data => data.years) || [],
@@ -500,6 +270,6 @@ async function setBarChart(rawData) {
         }
       },
   };
-  const ctxWasteType = document.getElementById('lineChart-withdrawal').getContext('2d');
+  const ctxWasteType = document.getElementById('barChart-withdrawal').getContext('2d');
   new Chart(ctxWasteType, configWasteType);
 };
