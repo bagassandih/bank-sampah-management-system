@@ -11,6 +11,11 @@ const customerSchema = new mongoose.Schema({
         default: 'Unknown',
         lowercase: true
     },
+    gender: {
+        type: String,
+        enum: ['male', 'female'],
+        default: 'male'
+    },
     phone_number: {
         type: String,
         default: 'unknown'
