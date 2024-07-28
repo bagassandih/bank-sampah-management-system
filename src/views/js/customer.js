@@ -7,51 +7,7 @@ filterSorting(undefined, 'same');
 
 // CRUD
 function getDetailCustomer(data) {
-  // delete unecesarry field
-  delete data.__v;
-  delete data.amount_data;
-
-  let htmlData = `<table style='text-align: left; width: 100%; margin: auto;' id='waste-types'>`;
-  for (const key in data) {
-    htmlData += '<tr>';
-    if (key === 'balance') {
-      if (data[key].deposit !== undefined) {
-        htmlData += '<tr>';
-        htmlData += `<th>deposit</th>`;
-        htmlData += `<td>${data.balance.deposit}</td>`;
-        htmlData += '</tr>';
-      }; 
-      if (data[key].withdrawal !== undefined) {
-        htmlData += '<tr>';
-        htmlData += `<th>withdrawal</th>`;
-        htmlData += `<td>${data.balance.withdrawal}</td>`;
-        htmlData += '</tr>';
-      };
-    } else if (key === 'creator') {
-      if (data[key].username !== undefined) {
-        htmlData += '<tr>';
-        htmlData += `<th>creator_username</th>`;
-        htmlData += `<td>${data.creator.username}</td>`;
-        htmlData += '</tr>';
-      }; 
-      if (data[key]._id !== undefined) {
-        htmlData += '<tr>';
-        htmlData += `<th>creator_id</th>`;
-        htmlData += `<td>${data.creator._id}</td>`;
-        htmlData += '</tr>';
-      }
-    } else {
-      htmlData += `<th>${key}</th>`;
-      htmlData += `<td>${data[key]}</td>`;
-    };
-    htmlData += '</tr>';
-  };
-  htmlData += '</table>';
-
-  Swal.fire({
-    title: data.full_name[0].toUpperCase() + data.full_name.slice(1),
-    html: htmlData
-  });
+  return window.location.href = `/customer/${data._id}`;
 };
 
 function editDataCustomer(data) {

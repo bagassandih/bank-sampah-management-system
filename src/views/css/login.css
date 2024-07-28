@@ -88,6 +88,10 @@ h1 {
   font-size: 1rem;
 }
 
+.login-box > form > div > button[type=submit]:hover {
+  cursor: pointer;
+}
+
 /* Forget passwrod */
 .login-box > div:nth-child(3) {
   font-size: 12px;

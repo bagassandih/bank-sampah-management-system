@@ -1,6 +1,7 @@
 require('dotenv').config();
 const customerModel = require('../models/customer');
 const depositModel = require('../models/deposit');
+const withdrawalModel = require('../models/withdrawal');
 const moment = require('moment');
 
 async function getDataCustomer(filter, sorting, pagination) {
@@ -166,23 +167,64 @@ async function updateDataCustomer(id, input) {
 async function getProfileCustomer(id) {
     try {
         if (!id) throw { status: 400, message: 'need input id' };
-        const customerData = await customerModel.find({ _id: id }).lean()
-        customerData?.map(data => ({
-            ...data,
-            join_date: moment(data.join_date).format('LL')
-        }));
+        let customerData = await customerModel.findOne({ _id: id }).populate('creator').lean()
+        if (!customerData) throw { status: 404, message: 'customer not found' };
+        customerData.join_date = moment(customerData.join_date).format('LL');
+        
+        let depositData = await depositModel.find({ customer: id }).populate('waste_type').sort({ deposit_date: -1 }).lean(); 
+        if (depositData?.length) {
+            depositData = depositData.map(data => ({
+                ...data,
+                deposit_date: moment(data.deposit_date).format('LL')
+            }))
+        };
+    
+        let withdrawalData = await withdrawalModel.find({ customer: id }).sort({ createdAt: -1 }).lean(); 
+        if (withdrawalData?.length) {
+            withdrawalData = withdrawalData.map(data => ({
+                ...data,
+                createdAt: moment(data.createdAt).format('LL')
+            }))
+        };
 
-        if (!customerData || !customerData.length) throw { status: 404, message: 'customer not found' };
-        const depositData = await depositModel.find({ customer: id }).sort({ deposit_date: -1 }).lean(); 
-        depositData?.map(data => ({
-            ...data,
-            deposit_date: moment(data.deposit_date).format('LL')
-        }));
+        let result = {
+            customerData: customerData,
+            allTotalKg: depositData
+                .reduce((acc, current) => acc + current.weight, 0) || 0,
 
-        return { customerData: customerData[0], depositData: depositData };
+            currentTotalKg: depositData
+                .filter(data => data.withdrawal_decision === 'ready')
+                .reduce((acc, current) => acc + current.weight, 0) || 0,
+            
+            currentDepositAmount: depositData
+                .filter(data => data.withdrawal_decision === 'ready')
+                .reduce((acc, current) => acc + current.amount, 0) || 0,
+            lastDataDeposit: depositData[0] || null,
+
+            currentWithdrawalAmount: withdrawalData
+                .filter(data => data.createdAt === new Date().getFullYear())
+                .reduce((acc, current) => acc + current.amount, 0) || 0,
+            lastDataWithdrawal: withdrawalData[0] || null,
+        };
+
+        if (result.allTotalKg) result.allTotalKg = formatNumber(result.allTotalKg);
+        if (result.currentTotalKg) result.currentTotalKg = formatNumber(result.currentTotalKg);
+        if (result.customerData?.balance?.withdrawal) result.customerData.balance.withdrawal = formatNumber(result.customerData.balance.withdrawal);
+        if (result.customerData?.balance?.deposit) result.customerData.balance.deposit = formatNumber(result.customerData.balance.deposit);
+
+        return { result };
     } catch (error) {
         throw { status: error.status ?? 400, message: error.message };
     }
+};
+
+function formatNumber (value) {
+    if (value >= 1000) {
+        const thousands = Math.floor(parseFloat(value / 1000).toFixed(1)); // Use toFixed(1) for one decimal place
+         return `${thousands}k`;
+      } else {
+         return `${value}`;
+      }
 };
 
 module.exports = {

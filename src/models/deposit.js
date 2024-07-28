@@ -15,7 +15,7 @@ const depositSchema = new mongoose.Schema({
   },
   waste_type: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'wasteType',
+    ref: 'waste_type',
     required: true
   },
   withdrawal_status: {

@@ -62,7 +62,7 @@ async function getProfileCustomer(req, res) {
         const { id } = req.params;
         const dataProfileCustomer = await services.getProfileCustomer(id);
         const result = { data: dataProfileCustomer, full_name: req.user?.full_name ?? null };
-        res.render('profile-customer', result);
+        res.render('profile-customer', result );
     } catch (error) {
         console.log(error);
         res.status(error.status).json({ status: error.status, message: error.message });

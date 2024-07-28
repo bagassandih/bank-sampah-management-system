@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <script src="../js/utilities.js"></script>
 </head>
 
 <body>
@@ -16,127 +17,152 @@
                 <div onclick="toggleSidebarClose()">
 
                     <h1>Detail Customers</h1>
-                    <section class="counter-container">
-                        <div class="counter-box">
-                            <div class="counter-item">
-                                <img src="./img/asset-18.png">
-                                <span class="number">
-                                    ...
-                                </span>
-                                <span class="notes">Total <br> Customer</span>
-                            </div>
-  
+                    
+                    <div class="reset-btn" style=" justify-content: space-between;">
+                        <button onclick="history.back()">Back</button>
+                        <button onclick="editDataCustomer('<%= JSON.stringify(data.result.customerData) %>')">Edit</button>
+                    </div>
+            
+                    <section class="detail-container">
+                        <div class="detail-profile">
+                           <img src="../img/asset-21.png">
+                           <h3><%- data.result.customerData.full_name.split(' ').map(str => str[0].toUpperCase() + str.slice(1)).join(' ') %></h3>
+                           <table border="0">
+                                <tr>
+                                    <th>Gender</th>
+                                    <td>: <%- data.result.customerData.gender.split(' ').map(str => str[0].toUpperCase() + str.slice(1)).join(' ') %></td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>: <%- data.result.customerData.phone_number %></td>
+                                </tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <td>: <%- data.result.customerData.address.split(' ').map(str => str[0].toUpperCase() + str.slice(1)).join(' ') %></td>
+                                </tr>
+                                <tr>
+                                    <th>Join Date</th>
+                                    <td>: <%- data.result.customerData.join_date %></td>
+                                </tr>
+                                <tr>
+                                    <th>Decision</th>
+                                    <td>: <%- data.result.customerData.withdrawal_decision.split(' ').map(str => str[0].toUpperCase() + str.slice(1)).join(' ') %></td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td>: <%- data.result.customerData.status.split(' ').map(str => str[0].toUpperCase() + str.slice(1)).join(' ') %></td>
+                                </tr>
+                                <tr>
+                                    <th>Created By</th>
+                                    <td>: <%- data.result.customerData.creator.full_name.split(' ').map(str => str[0].toUpperCase() + str.slice(1)).join(' ') %></td>
+                                </tr>
+                           </table>
                         </div>
-  
-                        <div class="counter-box">
-                            <div class="counter-item">
-                                <img src="./img/asset-7.png">
-                                <span class="number">
-                                  ...
-                                </span>
-                                <span class="notes">Active <br> Customer</span>
-  
+
+                        <div class="detail-container-stats">
+                            <div>
+                                <h2>Archived</h2>
+                                <div class="counter-item">
+                                    <span class="number">
+                                        <%= data.result.customerData.balance.deposit %>
+                                    </span>
+                                    <span class="notes">Total Amount Deposit</span>
+                                </div>
+                                <div class="counter-item">
+                                    <span class="number">
+                                        <%= data.result.customerData.balance.withdrawal %>
+                                    </span>
+                                    <span class="notes">Total Amount Withdrawal</span>
+                                </div>
+                                <div class="counter-item">
+                                    <span class="number">
+                                        <%= data.result.allTotalKg %>
+                                    </span>
+                                    <span class="notes">Total Kg Waste Type</span>
+                                </div>
                             </div>
-  
-                        </div>
-  
-                        <div class="counter-box">
-                            <div class="counter-item">
-                                <img src="./img/asset-19.png">
-                                <span class="number">
-                                  ...
-                                </span>
-                                <span class="notes">Deleted <br> Customer</span>
-  
+    
+                            <div>
+                                <h2>On Progress</h2>
+                                <div class="counter-item">
+                                    <span class="number">
+                                        <%= data.result.currentDepositAmount %>
+                                    </span>
+                                    <span class="notes">Total Amount Deposit</span>
+                                </div>
+                                <div class="counter-item">
+                                    <span class="number">
+                                        <%= data.result.currentWithdrawalAmount %>
+                                    </span>
+                                    <span class="notes">Total Amount Withdrawal</span>
+                                </div>
+                                <div class="counter-item">
+                                    <span class="number">
+                                        <%= data.result.currentTotalKg %>
+                                    </span>
+                                    <span class="notes">Total Kg Waste Type</span>
+                                </div>
                             </div>
-  
                         </div>
+
                     </section>
 
-                    <section class="waste-type">  
-                        
-                        <div class="reset-btn">
-                            <button onclick="createDataCustomer()">Customer+</button>
-                            <button onclick="resetFilter()">Reset</button>
-                        </div>
-                        <section class="waste-type-container">    
-                            <table class="waste-type-table">
-                                <thead>
+                    <h1>Last Activities</h1>
+                    <section class="detail-container">                       
+                        <div class="activities">
+                            <div>
+                                <img src="../img/asset-6.png">
+                                <table border="0">
                                     <tr>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="full_name">
-                                                Name
-                                            </div>
-                                            <input type="text" placeholder="Search.." name="full_name" oninput="filterSorting(undefined, 'same')">
-                                        </th>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="phone_number">
-                                                Phone
-                                            </div>
-                                            <input type="text" placeholder="Search.." name="phone_number" oninput="filterSorting(undefined, 'same')">
-                                        </th>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="address">
-                                                Address
-                                            </div>
-                                            <input type="text" placeholder="Search.." name="address" oninput="filterSorting(undefined, 'same')">
-                                        </th>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="balance.deposit">
-                                                Deposit
-                                            </div>
-                                            <div style="display: inline;">
-                                                <input type="number" placeholder="Search.." name="balance.deposit" oninput="filterSorting(undefined, 'same')">
-                                            </div>
-                                        </th>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="balance.withdrawal">
-                                                Withdrawal
-                                            </div>
-                                            <div style="display: inline;">
-                                                <input type="number" placeholder="Search.." name="balance.withdrawal" oninput="filterSorting(undefined, 'same')">
-                                            </div>
-                                        </th>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="join_date">
-                                                Join Date
-                                            </div>
-                                            <input type="date" placeholder="Search.." name="join_date" oninput="filterSorting(undefined, 'same')">
-                                        </th>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="withdrawal_decision">
-                                                Decision
-                                            </div>
-                                            <select id="filter-status" name="withdrawal_decision" oninput="filterSorting(undefined, 'same')">
-                                                <option value="">All</option>
-                                                <option value="yes">Yes</option>
-                                                <option value="no">No</option>
-                                            </select>
-                                        </th>
-                                        <th>
-                                            <div onclick="filterSorting(this, 'same')" data-sort=0 name="status">
-                                                Status
-                                            </div>
-                                            <select id="filter-status" name="status" oninput="filterSorting(undefined, 'same')">
-                                                <option value="active">Active</option>
-                                                <option value="deleted">Deleted</option>
-                                            </select>
-                                        </th>
-                                        <th class="th-action">Action</th>
+                                        <th colspan="2">Deposit</th>
                                     </tr>
-                                </thead>
-                                <tbody id="data-table-customer">
-                                  
-                                </tbody>
-                            </table>
-                        </section>
+                                    <% if (data.result.lastDataDeposit) { %>
+                                        <tr>
+                                            <td>Amount</td>
+                                            <td>: Rp. <%= data.result.lastDataDeposit.amount %> </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Weight</td>
+                                            <td>: <%= data.result.lastDataDeposit.weight %> Kg</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Waste Type</td>
+                                            <td>: <%= data.result.lastDataDeposit.waste_type.name %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Deposit Date</td>
+                                            <td>: <%= data.result.lastDataDeposit.deposit_date %></td>
+                                        </tr>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="2">There is no data.</td>
+                                        </tr>
+                                    <% } %>
+                                </table>
+                            </div>
 
-                        <div class="pagination">
-                            <span name="first-page" onclick="filterSorting(undefined, 'first')"> First </span>
-                            <span name="previous-page" onclick="filterSorting(undefined, 'prev')"> < </span>
-                            <span name="active-page" class="active"> 1 </span>
-                            <span name="next-page" onclick="filterSorting(undefined, 'next')"> > </span>
-                            <span name="last-page" data-page="" onclick="filterSorting(undefined, 'last')"> Last </span>
+                            <div>
+                                <img src="../img/asset-13.png">
+                                <table border="0">
+                                    <tr>
+                                        <th colspan="2">Withdrawal</th>
+                                    </tr>
+                                    <% if (data.result.lastDataWithdrawal) { %>
+                                        <tr>
+                                            <td>Amount</td>
+                                            <td>: Rp. <%= data.result.lastDataWithdrawal.amount %></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Withdrawal Date</td>
+                                            <td>: <%= data.result.lastDataWithdrawal.createdAt %></td>
+                                        </tr>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="2">There is no data.</td>
+                                        </tr>
+                                    <% } %>
+                                </table>
+                            </div>
                         </div>
                     </section>
 
@@ -146,8 +172,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../js/sidebar.js"></script>
-    <script src="../js/utilities.js"></script>
-    <script src="../js/customer.js"></script>
+    <script src="../js/profile-customer.js"></script>
+    
 </body>
 
 </html>
