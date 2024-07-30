@@ -16,8 +16,8 @@ function editDataCustomer(rawData) {
                 </th>
                 <td>
                     <select>
-                    <option value="female">Female</option>
                     <option value="male">Male</option>
+                    <option value="female">Female</option>
                     </select>
                 </td>
             </tr>

@@ -299,12 +299,12 @@ header {
   width: 100%; 
   padding: 10px 0px;
   overflow: auto;
+  border-radius: 10px;
 }
 
 .waste-type-table > thead > tr > th {
   background-color: #99ACFF;
   padding: 10px;
-  border-radius: 10px;
 }
 
 .waste-type-table > thead > tr > th > div {
@@ -313,7 +313,6 @@ header {
 
 .waste-type-table > tbody > tr > td {
   background-color: #E3E8FF;
-  border-radius: 10px;
 }
 
 .waste-type-table > tbody > tr > td {
@@ -466,6 +465,10 @@ header {
 
 .th-action {
   width: 100px;
+  position: -webkit-sticky; /* For Safari */
+  position: sticky;
+  right: 0;
+  z-index: 1;
 }
 
 .reset-btn, .pagination {
@@ -598,6 +601,7 @@ header {
   resize: none;
   text-align: left;
   padding: 2px;
+  font-family: Roboto, sans-serif;
 }
 
 .sa-input select {

@@ -1,18 +1,21 @@
 const baseUrlApi = 'http://localhost:3000/';
 
 function formatNumber(value) {
-  if (value >= 1000) {
-    const thousands = Math.floor(parseFloat(value / 1000).toFixed(1)); // Use toFixed(1) for one decimal place
-     return `${thousands}k`;
+  if (value >= 1000000) {
+    const millions = parseFloat(value / 1000000).toFixed(1);
+    return `${millions}jt`;
+  } else if (value >= 1000) {
+    const thousands = parseFloat(value / 1000).toFixed(1);
+    return `${thousands}k`;
   } else {
-     return `${value}`;
+    return `${value}`;
   }
 };
 
 // INPUT DATA
 function deleteInput() {
-  inputCount--;
   document.querySelectorAll('.swal2-html-container > div')[inputCount].remove();
+  inputCount--;
 };
 
 // FILTER SORTING

@@ -5,7 +5,7 @@ const wasteTypeModel = require('../models/wasteType');
 const depositModel = require('../models/deposit');
 const withdrawalModel = require('../models/withdrawal');
 
-async function getDataHome() {
+async function getDataHome(isLogin) {
   try {
     let countCustomer = 0;
     let totalDeposit = 0;
@@ -13,36 +13,24 @@ async function getDataHome() {
 
     let rawDataset = [];
 
-    const currentYear = moment().format('YYYY');
+    const currentYear = moment().format('YYYY') - 1;
     const startDate = moment(currentYear + '-01-01').startOf('day').toDate();
     const endDate = moment(currentYear + '-12-31').endOf('day').toDate();
+
+    const filterRawDataDeposit = {
+      status: 'active'
+    };
+
+    if (!isLogin) filterRawDataDeposit.deposit_date = { $gte: startDate, $lte: endDate };
 
     const rawDataCustomer = await customerModel.find({ status: 'active' }).lean();
     const rawDataWasteType = await wasteTypeModel.find({ status: 'active' }).sort({ name: 1 }).limit(10).lean();
     const rawDataWasteTypeCounter = await wasteTypeModel.find({ status: 'active' }).sort({ deposit_count: -1 }).limit(5).lean();
-    const rawDataDeposit = await depositModel.find({
-      status: 'active',
-      deposit_date: {
-        $gte: startDate,
-        $lte: endDate
-      }
-    }).sort({ deposit_date: 1 }).lean();
-    const rawDataWitdhrawal = await withdrawalModel.find().sort({ createdAt: -1 }).lean();
-
+    const rawDataDeposit = await depositModel.find(filterRawDataDeposit).sort({ deposit_date: 1 }).lean();
+    const rawDataWitdhrawal = await withdrawalModel.find({}).sort({ createdAt: -1 }).lean();
     if (rawDataCustomer.length) {
       // add counter 
       countCustomer = rawDataCustomer.length;
-
-      // count total deposit
-      rawDataCustomer.forEach(customer => totalDeposit += customer.balance.deposit ?? 0);
-
-      // translate
-      if (totalDeposit >= 1000) {
-        const thousands = parseFloat(totalDeposit / 1000);
-        totalDeposit = `${thousands}k`;
-      } else {
-        totalDeposit = `${totalDeposit}`;
-      }
     };
 
     if (rawDataDeposit?.length) {
@@ -55,12 +43,31 @@ async function getDataHome() {
         };
         checkMonth.customers.push({ id: deposit.customer, amount: deposit.amount });
       })
+
+      // count total deposit
+      rawDataDeposit.forEach(deposit => totalDeposit += deposit.amount ?? 0);
+
+      // translate
+      if (totalDeposit >= 1000000) {
+        const millions = parseFloat(totalDeposit / 1000000).toFixed(1);
+        totalDeposit = `${millions}jt`;
+      } else if (totalDeposit >= 1000) {
+        const thousands = parseFloat(totalDeposit / 1000).toFixed(1);
+        totalDeposit = `${thousands}k`;
+      } else {
+        totalDeposit = `${totalDeposit}`;
+      }
     };
 
     // dataset for chart deposit
     const listMonth = rawDataset.map(data => data.month);
     const listAmountDeposit = rawDataset.map(data => data.customers.reduce((acc, current) => acc + current.amount, 0));
-    const listCustomer = rawDataset.map(data => data.customers.length);
+    // const listCustomer = rawDataset.map(data => data.customers.length);
+    const listCustomer = rawDataset.map(monthData => {
+      const uniqueCustomers = new Set(monthData.customers.map(customer => String(customer.id._id)));
+      return uniqueCustomers.size;
+    });
+    ;
     const listWasteTypeName = rawDataWasteTypeCounter.map(data => data.name);
     const listWasteTypeCount = rawDataWasteTypeCounter.map(data => data.deposit_count);
 
@@ -108,7 +115,7 @@ async function getDataHome() {
   } catch (error) {
     throw { status: error.status ?? 400, message: error.message };
   }
-}
+};
 
 module.exports = {
   getDataHome,

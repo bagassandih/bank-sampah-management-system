@@ -172,7 +172,7 @@ function fetchDataTable(bodyRequest) {
           newElement += `<td style="width: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${customerNameConvert}</td>`;
           newElement += `<td style="text-align: center;">${statusConvert}</td>`;
           newElement += `
-                <td style="text-align: center;">
+                <td style="text-align: center;" class="th-action">
                     ${element.status === 'active' ? deleteBtn : ''}
                     <img src="img/asset-16.png" onclick="getDetailWithdrawal(${parsedElement})"/>
                 </td>`;
@@ -228,7 +228,7 @@ async function setBarChart() {
   document.querySelectorAll('.chart-deposit')[0].appendChild(canvasBar);
 
   rawDataWithdrawal.forEach(withdrawal => {
-    const getYear = moment(withdrawal.deposit_date).format('YYYY');
+    const getYear = moment(withdrawal.createdAt).format('YYYY');
     let checkYear = rawDataset.find(data => data.years === getYear);
     if (!checkYear) {
       checkYear = { years: getYear, deposits: [] };

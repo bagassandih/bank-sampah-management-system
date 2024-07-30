@@ -156,7 +156,18 @@ function createDataCustomer() {
               <input type="text" value="" placeholder="Name..">    
           </td>
       </tr>
-        <tr>
+      <tr>
+        <th>
+            Gender
+        </th>
+        <td>
+            <select>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            </select>
+        </td>
+      </tr>
+      <tr>
           <th>
               Phone
           </th>
@@ -199,9 +210,11 @@ function createDataCustomer() {
       const getNameValue = e.querySelectorAll('.sa-input input')[0].value;
       const getPhoneValue = e.querySelectorAll('.sa-input input')[1].value;
       const getAdressValue = e.querySelector('.sa-input textarea').value;
-      const getDecisionValue = e.querySelector('.sa-input select').value;
+      const getGenderValue = document.querySelectorAll('.sa-input select')[0].value;
+      const getDecisionValue = e.querySelectorAll('.sa-input select')[1].value;
       bodyRequest.push({
         full_name: getNameValue.toLowerCase(),
+        gender: getGenderValue,
         phone_number: getPhoneValue ?? 0,
         address: getAdressValue.toLowerCase(),
         withdrawal_decision: getDecisionValue.toLowerCase()
@@ -254,6 +267,17 @@ function addMoreInput() {
           <td>
               <input type="text" value="" placeholder="Name..">    
           </td>
+      </tr>
+      <tr>
+        <th>
+            Gender
+        </th>
+        <td>
+            <select>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            </select>
+        </td>
       </tr>
         <tr>
           <th>
@@ -333,7 +357,7 @@ function fetchDataTable(bodyRequest) {
           newElement += `<td style="text-align: center;">${decisionConvert}</td>`;
           newElement += `<td style="text-align: center;">${statusConvert}</td>`;
           newElement += `
-                <td style="text-align: center;">
+                <td style="text-align: center;" class="th-action">
                     <img src="img/asset-15.png" onclick="editDataCustomer(${parsedElement})"/>
                     <img src="img/asset-14.png" onclick="deleteDataCustomer(${parsedElement})"/>
                     <img src="img/asset-16.png" onclick="getDetailCustomer(${parsedElement})"/>

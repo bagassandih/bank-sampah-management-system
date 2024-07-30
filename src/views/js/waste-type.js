@@ -277,7 +277,7 @@ function fetchDataTable(bodyRequest) {
           newElement += `<td style="text-align: center;">${element.deposit_count ?? 0}</td>`;
           newElement += `<td style="text-align: center;">${statusConvert}</td>`;
           newElement += `
-                <td style="text-align: center;">
+                <td style="text-align: center;" class="th-action">
                     <img src="img/asset-15.png" onclick="editDataWasteType(${parsedElement})"/>
                     <img src="img/asset-14.png" onclick="deleteDataWasteType(${parsedElement})"/>
                     <img src="img/asset-16.png" onclick="getDetailWasteType(${parsedElement})"/>

@@ -1,9 +1,10 @@
 const tableElement = document.querySelector('#data-table-deposit');
 
 let timeout;
-let inputCount = 1;
+let inputCount = 0;
 
 filterSorting(undefined, 'same');
+changeYear(new Date().getFullYear());
 
 // CRUD
 function getDetailDeposit(data) {
@@ -106,21 +107,22 @@ function deleteDataDeposit(data) {
 };
 
 async function calculateAmount(count) {
-  const getDocument = document.querySelectorAll('.sa-input')[count-1];
+  const getDocument = document.querySelectorAll('.sa-input')[count];
 
-  const getValueWasteType = getDocument.querySelectorAll('select')[0].value;
+  const getValueWasteType = getDocument.querySelectorAll('select')[1].value;
   const listWasteType = await getAllWasteTypeData();
   const getOneDataWasteType = listWasteType.filter((each) => each._id === getValueWasteType)[0];
   const getAmountValue = getDocument.querySelectorAll('.sa-input input')[0].value;
 
+  console.log(getAmountValue)
   const calculate = getAmountValue * getOneDataWasteType.price;
-
   getDocument.querySelectorAll('.sa-input input')[1].value = calculate;
 };
 
 async function getAllWasteTypeData() {
   const bodyRequest = {
     filter: { status: 'active' },
+    sorting: { name: 1 },
     pagination: { page: 0, limit: 1000 }
   };
 
@@ -150,6 +152,7 @@ async function getAllWasteTypeData() {
 async function getAllCustomerData() {
   const bodyRequest = {
     filter: { status: 'active' },
+    sorting: { full_name: 1 },
     pagination: { page: 0, limit: 1000 }
   };
 
@@ -195,22 +198,23 @@ async function createDataDeposit() {
     <div class='reset-btn sa'>
         <button onclick='addMoreInput(${JSON.stringify(optionWasteType)}, ${JSON.stringify(optionCustomer)})'>Add More+</button>
     </div>
+
     <table class='sa-input' data-count-input=${inputCount}>
+      <tr>
+        <th> 
+           Customer
+        </th>
+        <td>
+            <select>${optionCustomer}</select>
+        </td>
+      </tr>
+
       <tr>
         <th>
             Waste Type
         </th>
         <td>
-            <select>${optionWasteType}</select>
-        </td>
-      </tr>
-        
-      <tr>
-        <th>
-            Customer
-        </th>
-        <td>
-            <select>${optionCustomer}</select>
+            <select onchange="calculateAmount(${inputCount})">${optionWasteType}</select>
         </td>
       </tr>
       
@@ -231,7 +235,6 @@ async function createDataDeposit() {
               <input type="number" value="" placeholder="Amount.." readOnly style="color:gray;">    
           </td>
       </tr>
-     
   </table>
     `;
 
@@ -245,8 +248,8 @@ async function createDataDeposit() {
     let bodyRequest = [];
     const element = document.querySelectorAll('.sa-input > tbody');
     element.forEach(e => {
-      const getWasteTypeValue = e.querySelectorAll('.sa-input select')[0].value;
-      const getCustomerValue = e.querySelectorAll('.sa-input select')[1].value;
+      const getCustomerValue = e.querySelectorAll('.sa-input select')[0].value;
+      const getWasteTypeValue = e.querySelectorAll('.sa-input select')[1].value;
       const getWeightValue = e.querySelectorAll('.sa-input input')[0].value;
       const getAmountValue = e.querySelectorAll('.sa-input input')[1].value;
       bodyRequest.push({
@@ -276,10 +279,13 @@ async function createDataDeposit() {
               title: 'Successfully created!',
               icon: "success"
             }).then((res) => {
-              filterSorting(undefined, 'same');
+              window.location.reload();
+              // filterSorting(undefined, 'same');
             });
           };
         })
+    } else {
+      inputCount = 0;
     }
   });
 };
@@ -287,7 +293,10 @@ async function createDataDeposit() {
 // INPUT DATA
 function addMoreInput(optionWasteType, optionCustomer) {
   inputCount++;
-  document.querySelector('.swal2-html-container').innerHTML += `
+  const selectedCustomer = document.querySelectorAll('.sa-input')[inputCount-1].querySelectorAll('select')[0].value;
+  const selectedWasteType = document.querySelectorAll('.sa-input')[inputCount-1].querySelectorAll('select')[1].value;
+    
+ document.querySelector('.swal2-html-container').innerHTML += `
     <div data-count-input=${inputCount}>
         <br>
     <div class='reset-btn sa'>
@@ -296,21 +305,22 @@ function addMoreInput(optionWasteType, optionCustomer) {
         <button onclick='deleteInput()'>Delete</button>
     </div>
     <table class='sa-input' data-count-input=${inputCount}>
-      <tr>
-        <th>
-            Waste Type
-        </th>
-        <td>
-            <select>${optionWasteType}</select>
-        </td>
-      </tr>
-        
+    
       <tr>
         <th>
             Customer
         </th>
         <td>
             <select>${optionCustomer}</select>
+        </td>
+      </tr>
+    
+      <tr>
+        <th>
+            Waste Type
+        </th>
+        <td>
+            <select>${optionWasteType}</select>
         </td>
       </tr>
       
@@ -335,6 +345,11 @@ function addMoreInput(optionWasteType, optionCustomer) {
   </table>
   </div>
     `;
+  
+  document.querySelectorAll('.sa-input').forEach(each => {
+    each.querySelectorAll('select')[0].value = selectedCustomer;
+    each.querySelectorAll('select')[1].value = selectedWasteType;
+  });
 };
 
 // FETCH DATA
@@ -379,7 +394,7 @@ function fetchDataTable(bodyRequest) {
           newElement += `<td style="text-align: center;">${withdrawalConvert}</td>`;
           newElement += `<td style="text-align: center;">${statusConvert}</td>`;
           newElement += `
-                <td style="text-align: center;">
+                <td style="text-align: center;" class="th-action">
                     ${element.status === 'active' ? deleteBtn : ''}
                     <img src="img/asset-16.png" onclick="getDetailDeposit(${parsedElement})"/>
                 </td>`;
@@ -556,11 +571,8 @@ function summaryData() {
     let totalDeposit = rawData.reduce((acc, current) => acc + current.amount, 0);
     let totalWeight = rawData.reduce((acc, current) => acc + current.weight, 0);
   
-    document.querySelectorAll('.counter-item > .number')[0].innerText = formatNumber(totalData);
-    document.querySelector('.counter-item > .number-deposit').innerText = formatNumber(totalDeposit);
-    document.querySelectorAll('.counter-item > .number')[1].innerText = formatNumber(totalWeight);
-
-    setLineChart(rawData);
-    setDougChart(rawData);
+    document.querySelectorAll('.counter-item > .number-deposit')[0].innerText = formatNumber(totalData);
+    document.querySelectorAll('.counter-item > .number-deposit')[1].innerText = formatNumber(totalDeposit.toFixed(1));
+    document.querySelectorAll('.counter-item > .number-deposit')[2].innerText = formatNumber(totalWeight.toFixed(1));
   });
 };

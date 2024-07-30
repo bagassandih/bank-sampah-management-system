@@ -152,7 +152,7 @@ async function getDataWithdrawal(filter, sorting, pagination) {
 async function createDataWithdrawal(date, creatorId) {
   try {
     const checkMonth = moment().format('MMMM');
-    // if (checkMonth !== 'December') throw { status: 404, message: 'withdrawal only in December' };
+    if (checkMonth !== 'December') throw { status: 404, message: 'withdrawal only in December' };
     const startDate = moment(date, 'YYYY-MM-DD').startOf('month');
     const endDate = moment(date, 'YYYY-MM-DD').endOf('month');
 
