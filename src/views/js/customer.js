@@ -1,7 +1,7 @@
 const tableElement = document.querySelector('#data-table-customer');
 
 let timeout;
-let inputCount = 1;
+let inputCount = 0;
 
 filterSorting(undefined, 'same');
 
@@ -142,7 +142,6 @@ function deleteDataCustomer(data) {
 };
 
 function createDataCustomer() {
-  inputCount = 1;
   const tables = `
     <div class='reset-btn sa'>
         <button onclick='addMoreInput()'>Add More+</button>
@@ -244,6 +243,8 @@ function createDataCustomer() {
             });
           };
         })
+    } else {
+      inputCount = 0;
     }
   });
 };

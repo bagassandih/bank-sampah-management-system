@@ -1,7 +1,7 @@
 const tableElement = document.querySelector('#data-table-withdrawal');
 
 let timeout;
-let inputCount = 1;
+let inputCount = 0;
 
 filterSorting(undefined, 'same');
 
@@ -101,8 +101,7 @@ function deleteDataWithdrawal(data) {
 };
 
 async function createDataWithdrawal() {
-  // const checkMonth = moment().format('MMMM');
-  const checkMonth = moment('2024-12-25T04:57:35.370Z').format('MMMM');
+  const checkMonth = moment().format('MMMM');
   if (checkMonth !== 'December') {
     Swal.fire({
       title: 'Withdrawals only in December',

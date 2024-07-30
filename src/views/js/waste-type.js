@@ -1,13 +1,12 @@
 const tableElement = document.querySelector('#data-table-waste-type');
 
 let timeout;
-let inputCount = 1;
+let inputCount = 0;
 
 filterSorting(undefined, 'same');
 
 // CRUD
 function createDataWasteType() {
-  inputCount = 1;
   const tables = `
     <div class='reset-btn sa'>
         <button onclick='addMoreInput()'>Add More+</button>
@@ -72,6 +71,8 @@ function createDataWasteType() {
             });
           };
         })
+    } else {
+      inputCount = 0;
     }
   });
 };
@@ -214,7 +215,7 @@ function addMoreInput() {
         <button hidden></button>
         <button onclick='deleteInput()'>Delete</button>
     </div>
-    <table class='sa-input'>
+    <table class='sa-input' data-count-input=${inputCount}>
         <tr>
             <th>
                 Name
