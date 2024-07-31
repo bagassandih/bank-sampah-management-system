@@ -27,6 +27,15 @@ This has become a burden on the management of the waste bank activities. Therefo
 - Chart.js
 - HTML/CSS/JS
 
+## Configuration .env
+```bash
+SECRET_KEY_ACCESS=your_access_secret_key
+SECRET_KEY_REFRESH=your_refresh_secret_key
+PORT=your_port
+DB_URL=your_database_url
+DB_NAME=your_database_name
+ ``` 
+
 ## Installation
 
 - Clone the repo
