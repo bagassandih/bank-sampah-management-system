@@ -24,6 +24,7 @@ This has become a burden on the management of the waste bank activities. Therefo
 - Express.js
 - EJS View Engine
 - Sweetalert
+- Chart.js
 - HTML/CSS/JS
 
 ## Installation
